@@ -6,3 +6,5 @@ type Equipment struct {
 	Body string
 	Legs string
 }
+
+123
