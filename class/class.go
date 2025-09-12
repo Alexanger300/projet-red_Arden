@@ -3,6 +3,7 @@ package main
 import "fmt"
 
 type Class struct { //Initialisation des Stats pour CHAQUE Class
+	name string
 	Pv   int
 	Atk  int
 	Def  int
@@ -20,6 +21,7 @@ func main() {
 	var Guerisseur Class
 
 	//Stats de début du Paladin
+	Paladin.name = "Paladin"
 	Paladin.Pv = 100
 	Paladin.Atk = 50
 	Paladin.Def = 30
@@ -28,7 +30,7 @@ func main() {
 	Paladin.Crit = 0
 
 	//Stats de début du Géant
-
+	Géant.name = "Géant"
 	Géant.Pv = 80
 	Géant.Atk = 100
 	Géant.Def = 50
@@ -37,7 +39,7 @@ func main() {
 	Géant.Crit = 0
 
 	//Stats de début du Guérisseur
-
+	Guerisseur.name = "Guérisseur"
 	Guerisseur.Pv = 60
 	Guerisseur.Atk = 40
 	Guerisseur.Def = 100
@@ -46,7 +48,7 @@ func main() {
 	Guerisseur.Crit = 0
 
 	//Stats de début de Mage
-
+	Mage.name = "Mage"
 	Mage.Pv = 60
 	Mage.Atk = 100
 	Mage.Def = 40
@@ -55,14 +57,17 @@ func main() {
 	Mage.Crit = 0
 
 	Paladin.affichage()
+	Mage.affichage()
+	Géant.affichage()
+	Guerisseur.affichage()
 }
 func (c Class) affichage() {
-	fmt.Println("----------", c Class, "----------")
+	fmt.Println("----------", c.name, "----------")
 	fmt.Println("Pv :", c.Pv)
 	fmt.Println("Atk:", c.Atk)
 	fmt.Println("Def :", c.Def)
 	fmt.Println("Mana:", c.Mana)
 	fmt.Println("Speed:", c.Spd)
-	fmt.Println("Mana:", c.Crit)
+	fmt.Println("Crit:", c.Crit)
 	fmt.Println("-----------------------")
 }
