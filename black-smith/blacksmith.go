@@ -1,4 +1,4 @@
-package main
+package blacksmith
 
 import "fmt"
 
@@ -93,8 +93,4 @@ func improveEquipment() {
 		fmt.Println("Choix invalide, essaie encore.")
 		improveEquipment()
 	}
-}
-
-func main() {
-	Welcome()
 }
