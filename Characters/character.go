@@ -1,10 +1,9 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type Character struct {
+	// Caractéristiques du personnage
 	name  string
 	class string
 }
@@ -27,9 +26,9 @@ func initCharacter() {
 		//Classe du Personnage//
 		fmt.Println("Quelle Classe voulez-vous ? ")
 		fmt.Println("1: Paladin ")
-		fmt.Println("2:Géant  ")
-		fmt.Println("3:Mage ")
-		fmt.Println("4:Guérisseur ")
+		fmt.Println("2: Géant ")
+		fmt.Println("3: Mage ")
+		fmt.Println("4: Guérisseur ")
 		fmt.Scan(&choice_number)
 		switch choice_number {
 		case 1:
