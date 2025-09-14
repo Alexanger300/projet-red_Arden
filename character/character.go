@@ -1,84 +1,92 @@
-package main
+package character
 
 import (
 	"fmt"
+
+	"github.com/Alexanger300/projet-red_Arden/class"
 )
 
 type Character struct {
-	// Définition des attributs
-	name  string
-	class string
+	Name   string
+	Class  string
+	HP     int
+	Mana   int
+	Atk    int
+	Def    int
+	Spd    int
+	Crit   int
+	Weapon string
 }
 
-func initCharacter() {
-	// Initialisation du personnage
+// Création du personnage avec choix du joueur
+func InitCharacter() Character {
+	var c Character
+	var choiceNumber int
+	var confirm string
 	confirmed := false
-	var main_character Character
-	var choice_number int
-	var YesNo string
-	//Nom Du Personnage//
-	fmt.Print("Entrez le nom du personnage :")
-	_, err := fmt.Scan(&main_character.name)
+
+	// Nom
+	fmt.Print("Entrez le nom du personnage : ")
+	_, err := fmt.Scan(&c.Name)
 	if err != nil {
-		fmt.Println("Error", err)
+		fmt.Println("Erreur :", err)
 	}
 
-	fmt.Printf("Voici le nom de votre personnage %s", main_character.name)
-	fmt.Println()
+	fmt.Printf("Voici le nom de votre personnage : %s\n", c.Name)
+
+	// Classe
 	for !confirmed {
-		//Classe du Personnage//
-		fmt.Println("Quelle Classe voulez-vous ? ")
-		fmt.Println("1: Paladin ")
-		fmt.Println("2:Géant  ")
-		fmt.Println("3:Mage ")
-		fmt.Println("4:Guérisseur ")
-		fmt.Scan(&choice_number)
-		switch choice_number {
+		fmt.Println("\nQuelle Classe voulez-vous ?")
+		fmt.Println("1: Paladin")
+		fmt.Println("2: Géant")
+		fmt.Println("3: Mage")
+		fmt.Println("4: Guérisseur")
+		fmt.Print("Votre choix : ")
+		fmt.Scan(&choiceNumber)
+
+		var className string
+		switch choiceNumber {
 		case 1:
-			fmt.Println("Nourri par la foi et la justice, le Paladin porte une épée sacrée. Il protège les faibles et lutte contre les hérétiques. Sa force n’est pas seulement dans ses bras, mais dans sa croyance inébranlable.")
-			fmt.Println("Confirmez-vous votre choix ? (Oui/Non)")
-			fmt.Scan(&YesNo)
-			if YesNo == "Oui" {
-				fmt.Println("Vous êtes Paladin")
-				main_character.class = "Paladin"
-				confirmed = true
-			}
+			className = "Paladin"
 		case 2:
-			fmt.Println("Né des montagnes, le Géant n’a jamais connu la peur.Ses poings sont des armes, son corps un mur. Il n’obéit à personne, mais quand il choisit un camp, il le défend jusqu’à la mort.")
-			fmt.Println("Confirmez-vous votre choix ? (Oui/Non)")
-			fmt.Scan(&YesNo)
-			if YesNo == "Oui" {
-				fmt.Println("Vous êtes Géant")
-				main_character.class = "Géant"
-				confirmed = true
-			}
+			className = "Géant"
 		case 3:
-			fmt.Println("Le Mage a délaissé les lames et les boucliers. Dans son vieux grimoire sommeillent des flammes, des éclairs et des ombres interdites.Le monde le craint, car là où il passe, la réalité elle-même se plie.")
-			fmt.Println("Confirmez-vous votre choix ? (Oui/Non)")
-			fmt.Scan(&YesNo)
-			if YesNo == "Oui" {
-				fmt.Println("Vous êtes Mage")
-				main_character.class = "Mage"
-				confirmed = true
-			}
+			className = "Mage"
 		case 4:
-			fmt.Println("Le Guérisseur n’est pas un guerrier, mais un gardien de vie. Son bâton n’apporte pas la mort mais la lumière.Beaucoup se moquent de lui, jusqu’au jour où ses soins sauvent tout un bataillon.")
-			fmt.Println("Confirmez-vous votre choix ? (Oui/Non)")
-			fmt.Scan(&YesNo)
-			if YesNo == "Oui" {
-				fmt.Println("Vous êtes Guérisseur")
-				main_character.class = "Guérisseur"
-				confirmed = true
-			}
+			className = "Guérisseur"
 		default:
-			fmt.Println("PasDeClasse")
+			fmt.Println("Choix invalide.")
+			continue
 		}
 
-		fmt.Printf("-->Votre nom est %s", main_character.name)
-		fmt.Println(" ")
-		fmt.Printf("-->Votre classe est: %s", main_character.class)
+		// Récupérer stats + description depuis class
+		stats := class.Classes[className]
+		fmt.Printf("\n%s → %s\n", className, stats.Description)
+		fmt.Printf("PV: %d | ATK: %d | DEF: %d | Mana: %d | SPD: %d | CRIT: %d%% | Arme: %s\n",
+			stats.Pv, stats.Atk, stats.Def, stats.Mana, stats.Spd, stats.Crit, stats.Weapon)
+
+		fmt.Print("Confirmez-vous votre choix ? (Oui/Non) : ")
+		fmt.Scan(&confirm)
+
+		if confirm == "Oui" || confirm == "oui" {
+			c.Class = className
+			c.HP = stats.Pv
+			c.Mana = stats.Mana
+			c.Atk = stats.Atk
+			c.Def = stats.Def
+			c.Spd = stats.Spd
+			c.Crit = stats.Crit
+			c.Weapon = stats.Weapon
+			confirmed = true
+		}
 	}
+
+	return c
 }
-func main() {
-	initCharacter()
+
+// Affichage du personnage final
+func (c Character) Display() {
+	fmt.Println("\n--- Personnage créé avec succès ---")
+	fmt.Println("Nom   :", c.Name)
+	fmt.Println("Classe:", c.Class)
 }
