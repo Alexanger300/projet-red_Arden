@@ -5,11 +5,13 @@ import (
 )
 
 type Character struct {
+	// Définition des attributs
 	name  string
 	class string
 }
 
 func initCharacter() {
+	// Initialisation du personnage
 	confirmed := false
 	var main_character Character
 	var choice_number int
@@ -18,7 +20,7 @@ func initCharacter() {
 	fmt.Print("Entrez le nom du personnage :")
 	_, err := fmt.Scan(&main_character.name)
 	if err != nil {
-		fmt.Println("Error", err) //Renvoie Une erreur
+		fmt.Println("Error", err)
 	}
 
 	fmt.Printf("Voici le nom de votre personnage %s", main_character.name)
