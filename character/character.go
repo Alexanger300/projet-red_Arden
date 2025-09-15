@@ -8,20 +8,28 @@ import (
 	"github.com/Alexanger300/projet-red_Arden/skills"
 )
 
+// Effet temporaire (ex: poison, saignement…)
+type StatusEffect struct {
+	Name     string
+	Duration int
+	Damage   int
+}
+
 type Character struct {
-	Name    string
-	Class   string
-	HP      int
-	MaxHP   int
-	Mana    int
-	MaxMana int
-	Atk     int
-	Def     int
-	Spd     int
-	Crit    int
-	Weapon  string
-	Wallet  money.Money
-	Skills  []skills.Skill
+	Name     string
+	Class    string
+	HP       int
+	MaxHP    int
+	Mana     int
+	MaxMana  int
+	Atk      int
+	Def      int
+	Spd      int
+	Crit     int
+	Weapon   string
+	Wallet   money.Money
+	Skills   []skills.Skill
+	Statuses []StatusEffect // ✅ liste des effets appliqués
 }
 
 // Création du personnage
@@ -85,7 +93,7 @@ func InitCharacter() Character {
 			c.Spd = stats.Spd
 			c.Crit = stats.Crit
 			c.Weapon = stats.Weapon
-			c.Wallet = money.Money{Amount: 100, Currency: "or"}
+			c.Wallet = money.Money{Amount: 100, Currency: "Gold"}
 			c.Skills = skills.ClassSkills[className]
 			confirmed = true
 		}
@@ -101,6 +109,38 @@ func (c *Character) IsAlive() bool {
 		return false
 	}
 	return true
+}
+
+// Appliquer un effet de statut (poison, saignement…)
+func (c *Character) ApplyStatus(name string, duration int, damage int) {
+	c.Statuses = append(c.Statuses, StatusEffect{Name: name, Duration: duration, Damage: damage})
+	fmt.Printf("⚡ %s est maintenant affecté par %s (%d tours).\n", c.Name, name, duration)
+}
+
+// Traiter les effets de statut (à appeler chaque tour)
+func (c *Character) ProcessStatus() {
+	newStatuses := []StatusEffect{}
+
+	for _, s := range c.Statuses {
+		if s.Name == "Poison" {
+			c.HP -= s.Damage
+			if c.HP < 0 {
+				c.HP = 0
+			}
+			fmt.Printf("☠️ %s subit %d dégâts de poison ! (HP: %d/%d)\n", c.Name, s.Damage, c.HP, c.MaxHP)
+		}
+
+		s.Duration--
+		if s.Duration > 0 {
+			newStatuses = append(newStatuses, s) // encore actif
+		}
+	}
+
+	c.Statuses = newStatuses
+
+	if !c.IsAlive() {
+		fmt.Printf("💀 %s est mort à cause des effets de statut !\n", c.Name)
+	}
 }
 
 // Apprendre un nouveau sort
@@ -123,7 +163,7 @@ func (c *Character) LearnSkill(newSkill skills.Skill) {
 func (c *Character) UseSkill(skillName string, target *Character) {
 	for _, s := range c.Skills {
 		if s.Name == skillName {
-			// Vérif restriction Mage
+			// Restriction Mage
 			if s.Name == "Boule de feu" && c.Class != "Mage" {
 				fmt.Println("❌ Seul un Mage peut utiliser ce sort.")
 				return
@@ -138,7 +178,7 @@ func (c *Character) UseSkill(skillName string, target *Character) {
 			// Consommer le mana
 			c.Mana -= s.ManaCost
 
-			// Si c’est un soin
+			// Sort de soin
 			if s.IsHeal {
 				healAmount := s.Power + (c.Mana / 10)
 				target.HP += healAmount
@@ -150,7 +190,7 @@ func (c *Character) UseSkill(skillName string, target *Character) {
 				return
 			}
 
-			// Sinon → attaque
+			// Sort offensif
 			var rawDamage int
 			if s.IsMagic {
 				rawDamage = s.Power + (c.Mana / 5)
@@ -158,13 +198,11 @@ func (c *Character) UseSkill(skillName string, target *Character) {
 				rawDamage = s.Power + (c.Atk / 2)
 			}
 
-			// Réduction par la DEF
 			finalDamage := rawDamage - target.Def
 			if finalDamage < 0 {
 				finalDamage = 0
 			}
 
-			// Appliquer les dégâts
 			target.HP -= finalDamage
 			if target.HP < 0 {
 				target.HP = 0
@@ -173,7 +211,6 @@ func (c *Character) UseSkill(skillName string, target *Character) {
 			fmt.Printf("🔥 %s utilise %s sur %s → %d dégâts (HP restants : %d/%d)\n",
 				c.Name, s.Name, target.Name, finalDamage, target.HP, target.MaxHP)
 
-			// Vérifier la mort
 			if target.HP == 0 {
 				fmt.Printf("💀 %s est mort !\n", target.Name)
 			}

@@ -30,7 +30,7 @@ func Welcome(player *character.Character) {
 			fmt.Println("Merci de votre visite, revenez bientôt !")
 			return
 		default:
-			fmt.Println("Choix invalide, essayez encore.")
+			fmt.Println("❌ Choix invalide, essayez encore.")
 		}
 	}
 }
@@ -38,10 +38,11 @@ func Welcome(player *character.Character) {
 // === Achat d’objets ===
 func buyItems(player *character.Character) {
 	fmt.Println("\n--- 🛒 Boutique ---")
-	fmt.Println("1. Potion de soin (20 or)")
-	fmt.Println("2. Élixir de mana (15 or)")
-	fmt.Println("3. Cuir de sanglier (10 or)")
-	fmt.Println("4. Sac amélioré (+10 slots) (50 or)")
+	fmt.Println("1. Potion de soin (20 gold)")
+	fmt.Println("2. Élixir de mana (15 gold)")
+	fmt.Println("3. Cuir de sanglier (10 gold)")
+	fmt.Println("4. Sac amélioré (+10 slots) (50 gold)")
+	fmt.Println("5. Potion de poison (25 gold)")
 	fmt.Println("0. Retour")
 
 	var choice int
@@ -54,42 +55,50 @@ func buyItems(player *character.Character) {
 			inventory.AddItem("Potion de soin", 1)
 			fmt.Println("✅ Vous avez acheté une Potion de soin !")
 		} else {
-			fmt.Println("❌ Pas assez d'or.")
+			fmt.Println("❌ Pas assez de gold.")
 		}
 	case 2:
 		if player.Wallet.Spend(15) {
 			inventory.AddItem("Élixir de mana", 1)
 			fmt.Println("✅ Vous avez acheté un Élixir de mana !")
 		} else {
-			fmt.Println("❌ Pas assez d'or.")
+			fmt.Println("❌ Pas assez de gold.")
 		}
 	case 3:
 		if player.Wallet.Spend(10) {
 			inventory.AddItem("Cuir de sanglier", 1)
 			fmt.Println("✅ Vous avez acheté un Cuir de sanglier !")
 		} else {
-			fmt.Println("❌ Pas assez d'or.")
+			fmt.Println("❌ Pas assez de gold.")
 		}
 	case 4:
 		if player.Wallet.Spend(50) {
-			inventory.UpgradeBag(10) // ⚡ Augmente la capacité max de +10
+			inventory.UpgradeBag(10)
 			fmt.Println("👜 Vous avez acheté un sac amélioré ! Votre inventaire peut contenir plus d'objets.")
 		} else {
-			fmt.Println("❌ Pas assez d'or.")
+			fmt.Println("❌ Pas assez de gold.")
+		}
+	case 5:
+		if player.Wallet.Spend(25) {
+			inventory.AddItem("Potion de poison", 1)
+			fmt.Println("☠️ Vous avez acheté une Potion de poison !")
+		} else {
+			fmt.Println("❌ Pas assez de gold.")
 		}
 	case 0:
 		return
 	default:
-		fmt.Println("Choix invalide.")
+		fmt.Println("❌ Choix invalide.")
 	}
 }
 
 // === Vente d’objets ===
 func sellItems(player *character.Character) {
 	fmt.Println("\n--- 💰 Vente ---")
-	fmt.Println("1. Vendre une Potion de soin (+10 or)")
-	fmt.Println("2. Vendre un Élixir de mana (+7 or)")
-	fmt.Println("3. Vendre un Cuir de sanglier (+5 or)")
+	fmt.Println("1. Vendre une Potion de soin (+10 gold)")
+	fmt.Println("2. Vendre un Élixir de mana (+7 gold)")
+	fmt.Println("3. Vendre un Cuir de sanglier (+5 gold)")
+	fmt.Println("4. Vendre une Potion de poison (+12 gold)")
 	fmt.Println("0. Retour")
 
 	var choice int
@@ -121,9 +130,17 @@ func sellItems(player *character.Character) {
 		} else {
 			fmt.Println("❌ Vous n'avez pas de Cuir de sanglier à vendre.")
 		}
+	case 4:
+		if inventory.HasItem("Potion de poison", 1) {
+			inventory.RemoveItem("Potion de poison", 1)
+			player.Wallet.Add(12)
+			fmt.Println("✅ Vous avez vendu une Potion de poison.")
+		} else {
+			fmt.Println("❌ Vous n'avez pas de Potion de poison à vendre.")
+		}
 	case 0:
 		return
 	default:
-		fmt.Println("Choix invalide.")
+		fmt.Println("❌ Choix invalide.")
 	}
 }

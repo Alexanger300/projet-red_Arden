@@ -1,18 +1,24 @@
-package main
+package poisonpot
 
 import (
 	"fmt"
-	"time"
+
+	"github.com/Alexanger300/projet-red_Arden/character"
 )
 
-func poisonPot() { //Importer bibliothèque Character et/ou inventaire
-	for i := 0; i < 3; i++ {
-		fmt.Println("Vous subissez des dégâts de poison !")
-		HP -= 5
-		time.Sleep(1 * time.Second)
+// ApplyPoison applique un effet de poison sur la cible pendant X tours
+func ApplyPoison(user *character.Character, target *character.Character) {
+	if target == nil || !target.IsAlive() {
+		fmt.Println("❌ Cible invalide.")
+		return
 	}
-}
 
-func main() {
-	poisonPot()
+	// Dégâts fixes par tour
+	poisonDamage := 5
+	poisonDuration := 3 // nombre de tours
+
+	fmt.Printf("☠️ %s utilise une Potion de poison sur %s ! (%d tours)\n", user.Name, target.Name, poisonDuration)
+
+	// On marque la cible comme empoisonnée
+	target.ApplyStatus("Poison", poisonDuration, poisonDamage)
 }
