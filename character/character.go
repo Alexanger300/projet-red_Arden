@@ -17,18 +17,30 @@ type Character struct {
 	Spd    int
 	Crit   int
 	Weapon string
-	Wallet money.Money // <-- Porte-monnaie
+	Wallet money.Money
 }
 
-// Création du personnage avec choix du joueur
+// Création du personnage avec intro + choix
 func InitCharacter() Character {
 	var c Character
 	var choiceNumber int
 	var confirm string
 	confirmed := false
 
-	// Nom
-	fmt.Print("Entrez le nom du personnage : ")
+	// INTRODUCTION
+	fmt.Println("Au cœur d'un royaume déchiré par la guerre, les terres d'Arden sombrent dans les flammes.")
+	fmt.Println("Les dragons ravagent les villages, les armées s'entre-déchirent, et la peste ronge les survivants.")
+	fmt.Println()
+	fmt.Println("Dans ce chaos, quatre figures se lèvent.")
+	fmt.Println("Chacune guidée par un destin différent, mais toutes appelées par la même prophétie :")
+	fmt.Println()
+	fmt.Println("\"Quand les ténèbres couvriront le ciel, un héros renaîtra de la poussière.\"")
+	fmt.Println()
+	fmt.Println("À toi de choisir ton rôle dans cette épopée...")
+	fmt.Println()
+
+	// NOM DU PERSONNAGE
+	fmt.Print("Entrez le nom de votre personnage : ")
 	_, err := fmt.Scan(&c.Name)
 	if err != nil {
 		fmt.Println("Erreur :", err)
@@ -36,7 +48,7 @@ func InitCharacter() Character {
 
 	fmt.Printf("Voici le nom de votre personnage : %s\n", c.Name)
 
-	// Classe
+	// CHOIX DE LA CLASSE
 	for !confirmed {
 		fmt.Println("\nQuelle Classe voulez-vous ?")
 		fmt.Println("1: Paladin")
@@ -79,7 +91,7 @@ func InitCharacter() Character {
 			c.Spd = stats.Spd
 			c.Crit = stats.Crit
 			c.Weapon = stats.Weapon
-			c.Wallet = money.NewGold(100) // <-- 100 or de départ
+			c.Wallet = money.NewGold(100)
 			confirmed = true
 		}
 	}

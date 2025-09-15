@@ -7,8 +7,7 @@ import (
 	"github.com/Alexanger300/projet-red_Arden/inventory"
 )
 
-// Menu principal du marchand
-func Welcome(player *character.Character, inv *inventory.Inventory) {
+func Welcome(player *character.Character) {
 	fmt.Println("=== Bienvenue chez le marchand ===")
 	fmt.Println("J'ai toutes sortes d'objets à vendre !")
 
@@ -24,9 +23,9 @@ func Welcome(player *character.Character, inv *inventory.Inventory) {
 
 		switch choice {
 		case 1:
-			buyItems(player, inv)
+			buyItems(player)
 		case 2:
-			sellItems(player, inv)
+			sellItems(player)
 		case 3:
 			fmt.Println("Merci de votre visite, revenez bientôt !")
 			return
@@ -36,8 +35,7 @@ func Welcome(player *character.Character, inv *inventory.Inventory) {
 	}
 }
 
-// Acheter des objets
-func buyItems(player *character.Character, inv *inventory.Inventory) {
+func buyItems(player *character.Character) {
 	fmt.Println("\n--- Boutique ---")
 	fmt.Println("1. Potion de soin (20 or)")
 	fmt.Println("2. Élixir de mana (15 or)")
@@ -51,21 +49,21 @@ func buyItems(player *character.Character, inv *inventory.Inventory) {
 	switch choice {
 	case 1:
 		if player.Wallet.Spend(20) {
-			inv.AddItem("Potion de soin", 1)
+			inventory.AddItem("Potion de soin", 1)
 			fmt.Println("Vous avez acheté une Potion de soin !")
 		} else {
 			fmt.Println("Pas assez d'or.")
 		}
 	case 2:
 		if player.Wallet.Spend(15) {
-			inv.AddItem("Élixir de mana", 1)
+			inventory.AddItem("Élixir de mana", 1)
 			fmt.Println("Vous avez acheté un Élixir de mana !")
 		} else {
 			fmt.Println("Pas assez d'or.")
 		}
 	case 3:
 		if player.Wallet.Spend(10) {
-			inv.AddItem("Cuir de sanglier", 1)
+			inventory.AddItem("Cuir de sanglier", 1)
 			fmt.Println("Vous avez acheté un Cuir de sanglier !")
 		} else {
 			fmt.Println("Pas assez d'or.")
@@ -77,8 +75,7 @@ func buyItems(player *character.Character, inv *inventory.Inventory) {
 	}
 }
 
-// Vendre des objets
-func sellItems(player *character.Character, inv *inventory.Inventory) {
+func sellItems(player *character.Character) {
 	fmt.Println("\n--- Vente ---")
 	fmt.Println("1. Vendre une Potion de soin (+10 or)")
 	fmt.Println("2. Vendre un Élixir de mana (+7 or)")
@@ -91,25 +88,28 @@ func sellItems(player *character.Character, inv *inventory.Inventory) {
 
 	switch choice {
 	case 1:
-		if inv.RemoveItem("Potion de soin", 1) {
+		if inventory.HasItem("Potion de soin", 1) {
+			inventory.RemoveItem("Potion de soin", 1)
 			player.Wallet.Add(10)
 			fmt.Println("Vous avez vendu une Potion de soin.")
 		} else {
-			fmt.Println("Vous n'avez pas de Potion de soin.")
+			fmt.Println("Vous n'avez pas de Potion de soin à vendre.")
 		}
 	case 2:
-		if inv.RemoveItem("Élixir de mana", 1) {
+		if inventory.HasItem("Élixir de mana", 1) {
+			inventory.RemoveItem("Élixir de mana", 1)
 			player.Wallet.Add(7)
 			fmt.Println("Vous avez vendu un Élixir de mana.")
 		} else {
-			fmt.Println("Vous n'avez pas d'Élixir de mana.")
+			fmt.Println("Vous n'avez pas d'Élixir de mana à vendre.")
 		}
 	case 3:
-		if inv.RemoveItem("Cuir de sanglier", 1) {
+		if inventory.HasItem("Cuir de sanglier", 1) {
+			inventory.RemoveItem("Cuir de sanglier", 1)
 			player.Wallet.Add(5)
 			fmt.Println("Vous avez vendu un Cuir de sanglier.")
 		} else {
-			fmt.Println("Vous n'avez pas de Cuir de sanglier.")
+			fmt.Println("Vous n'avez pas de Cuir de sanglier à vendre.")
 		}
 	case 0:
 		return

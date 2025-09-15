@@ -8,20 +8,22 @@ import (
 
 const inventoryFile = "Inventory.json"
 
-// Charge l’inventaire depuis le fichier JSON
+// Charger l’inventaire
 func loadInventory() (map[string]int, error) {
 	inventory := make(map[string]int)
 
-	// Si le fichier n’existe pas, retourne un inventaire vide
+	// Si le fichier n’existe pas → inventaire vide
 	if _, err := os.Stat(inventoryFile); os.IsNotExist(err) {
 		return inventory, nil
 	}
 
+	// Lire le fichier
 	data, err := os.ReadFile(inventoryFile)
 	if err != nil {
 		return nil, err
 	}
 
+	// Convertir JSON → map
 	err = json.Unmarshal(data, &inventory)
 	if err != nil {
 		return nil, err
@@ -30,7 +32,7 @@ func loadInventory() (map[string]int, error) {
 	return inventory, nil
 }
 
-// Sauvegarde l’inventaire dans le fichier JSON
+// Sauvegarder l’inventaire
 func saveInventory(inventory map[string]int) error {
 	data, err := json.MarshalIndent(inventory, "", "  ")
 	if err != nil {
@@ -39,7 +41,7 @@ func saveInventory(inventory map[string]int) error {
 	return os.WriteFile(inventoryFile, data, 0644)
 }
 
-// Ajoute un objet
+// Ajouter un objet
 func AddItem(name string, qty int) {
 	inventory, err := loadInventory()
 	if err != nil {
@@ -53,10 +55,10 @@ func AddItem(name string, qty int) {
 		fmt.Println("Erreur:", err)
 		return
 	}
-	fmt.Println("Ajout :", qty, name, "| Inventaire :", inventory)
+	fmt.Printf("Ajout : %d %s | Inventaire : %v\n", qty, name, inventory)
 }
 
-// Retire un objet
+// Retirer un objet
 func RemoveItem(name string, qty int) {
 	inventory, err := loadInventory()
 	if err != nil {
@@ -71,17 +73,27 @@ func RemoveItem(name string, qty int) {
 
 	inventory[name] -= qty
 	if inventory[name] == 0 {
-		delete(inventory, name) // supprime les objets à 0
+		delete(inventory, name) // supprime si 0
 	}
 
 	if err := saveInventory(inventory); err != nil {
 		fmt.Println("Erreur:", err)
 		return
 	}
-	fmt.Println("Suppression :", qty, name, "| Inventaire :", inventory)
+	fmt.Printf("Suppression : %d %s | Inventaire : %v\n", qty, name, inventory)
 }
 
-// Affiche l’inventaire complet
+// Vérifier si on possède un objet
+func HasItem(name string, qty int) bool {
+	inventory, err := loadInventory()
+	if err != nil {
+		fmt.Println("Erreur:", err)
+		return false
+	}
+	return inventory[name] >= qty
+}
+
+// Afficher l’inventaire
 func ShowInventory() {
 	inventory, err := loadInventory()
 	if err != nil {
