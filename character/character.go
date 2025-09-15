@@ -7,15 +7,17 @@ import (
 )
 
 type Character struct {
-	Name   string
-	Class  string
-	HP     int
-	Mana   int
-	Atk    int
-	Def    int
-	Spd    int
-	Crit   int
-	Weapon string
+	Name    string
+	Class   string
+	HPMax   int
+	HP      int
+	ManaMax int
+	Mana    int
+	Atk     int
+	Def     int
+	Spd     int
+	Crit    int
+	Weapon  string
 }
 
 // Création du personnage avec choix du joueur
@@ -62,16 +64,18 @@ func InitCharacter() Character {
 		// Récupérer stats + description depuis class
 		stats := class.Classes[className]
 		fmt.Printf("\n%s → %s\n", className, stats.Description)
-		fmt.Printf("PV: %d | ATK: %d | DEF: %d | Mana: %d | SPD: %d | CRIT: %d%% | Arme: %s\n",
-			stats.Pv, stats.Atk, stats.Def, stats.Mana, stats.Spd, stats.Crit, stats.Weapon)
+		fmt.Printf("HP: %d | ATK: %d | DEF: %d | Mana: %d | SPD: %d | CRIT: %d%% | Arme: %s\n",
+			stats.HPMax, stats.Atk, stats.Def, stats.ManaMax, stats.Spd, stats.Crit, stats.Weapon)
 
 		fmt.Print("Confirmez-vous votre choix ? (Oui/Non) : ")
 		fmt.Scan(&confirm)
 
 		if confirm == "Oui" || confirm == "oui" {
 			c.Class = className
-			c.HP = stats.Pv
-			c.Mana = stats.Mana
+			c.HPMax = stats.HPMax
+			c.HP = stats.HPMax
+			c.ManaMax = stats.Mana
+			c.Mana = stats.ManaMax
 			c.Atk = stats.Atk
 			c.Def = stats.Def
 			c.Spd = stats.Spd
