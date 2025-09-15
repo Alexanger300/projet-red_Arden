@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Alexanger300/projet-red_Arden/class"
+	"github.com/Alexanger300/projet-red_Arden/money"
 )
 
 type Character struct {
@@ -16,6 +17,7 @@ type Character struct {
 	Spd    int
 	Crit   int
 	Weapon string
+	Wallet money.Money // <-- Porte-monnaie
 }
 
 // Création du personnage avec choix du joueur
@@ -77,6 +79,7 @@ func InitCharacter() Character {
 			c.Spd = stats.Spd
 			c.Crit = stats.Crit
 			c.Weapon = stats.Weapon
+			c.Wallet = money.NewGold(100) // <-- 100 or de départ
 			confirmed = true
 		}
 	}
