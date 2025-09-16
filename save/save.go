@@ -9,25 +9,47 @@ import (
 type GameState struct {
 	Name      string
 	Class     string
-	Inventory map[string]int
 	Money     int
-	Progress  string // ex: "foret", "montagne"
+	Progress  string
+	Inventory map[string]int
 }
 
+// Sauvegarder la partie
 func SaveGame(state GameState) {
-	data, _ := json.MarshalIndent(state, "", "  ")
-	os.WriteFile("save.json", data, 0644)
-	fmt.Println("💾 Partie sauvegardée !")
+	file, err := os.Create("save.json")
+	if err != nil {
+		fmt.Println("❌ Erreur lors de la sauvegarde :", err)
+		return
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	err = encoder.Encode(state)
+	if err != nil {
+		fmt.Println("❌ Erreur lors de l'encodage :", err)
+		return
+	}
+
+	fmt.Println("💾 Sauvegarde réussie.")
 }
 
+// Charger la partie
 func LoadGame() GameState {
-	var state GameState
-	data, err := os.ReadFile("save.json")
+	file, err := os.Open("save.json")
 	if err != nil {
-		fmt.Println("⚠️ Pas de sauvegarde trouvée.")
-		return state
+		fmt.Println("⚠️ Aucune sauvegarde trouvée.")
+		return GameState{}
 	}
-	json.Unmarshal(data, &state)
-	fmt.Println("📂 Partie chargée.")
+	defer file.Close()
+
+	var state GameState
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&state)
+	if err != nil {
+		fmt.Println("❌ Erreur lors du chargement :", err)
+		return GameState{}
+	}
+
+	fmt.Println("✅ Sauvegarde chargée avec succès.")
 	return state
 }

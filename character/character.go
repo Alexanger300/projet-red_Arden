@@ -4,7 +4,10 @@ import (
 	"fmt"
 
 	"github.com/Alexanger300/projet-red_Forge/class"
+	"github.com/Alexanger300/projet-red_Forge/equipment"
 	"github.com/Alexanger300/projet-red_Forge/money"
+	"github.com/Alexanger300/projet-red_Forge/monster"
+	"github.com/Alexanger300/projet-red_Forge/save"
 	"github.com/Alexanger300/projet-red_Forge/skills"
 )
 
@@ -36,7 +39,9 @@ type Character struct {
 	Wallet  money.Money
 	Skills  []skills.Skill
 
-	Statuses []Status // ⚡ Liste des statuts actifs
+	Statuses  []Status
+	Inventory map[string]int         //  Inventaire (objet → quantité)
+	Equip     equipment.EquipmentSet //  Ensemble d’équipements
 }
 
 // === Création du personnage ===
@@ -112,6 +117,15 @@ func InitCharacter() Character {
 			c.Exp = 0
 			c.ExpNext = 10
 
+			// Inventaire de base
+			c.Inventory = map[string]int{
+				"Potion de soin":   2,
+				"Potion de poison": 1,
+			}
+
+			// Équipement vide au départ
+			c.Equip = equipment.EquipmentSet{}
+
 			confirmed = true
 		}
 	}
@@ -121,14 +135,10 @@ func InitCharacter() Character {
 
 // === Vérifie si le joueur est vivant ===
 func (c *Character) IsAlive() bool {
-	if c.HP <= 0 {
-		fmt.Printf("\n💀 %s est mort... Vous devez recommencer l'aventure.\n", c.Name)
-		return false
-	}
-	return true
+	return c.HP > 0
 }
 
-// === Gagner de l'expérience ===
+// === Gagner de l’expérience ===
 func (c *Character) GainExp(amount int) {
 	c.Exp += amount
 	fmt.Printf("✨ %s gagne %d points d'expérience ! (%d/%d)\n",
@@ -143,9 +153,8 @@ func (c *Character) GainExp(amount int) {
 func (c *Character) LevelUp() {
 	c.Level++
 	c.Exp -= c.ExpNext
-	c.ExpNext += 10 // chaque niveau demande 10 XP de plus
+	c.ExpNext += 10
 
-	// 🎯 Augmentation des stats en fonction de la classe
 	switch c.Class {
 	case "Paladin":
 		c.MaxHP += 15
@@ -168,7 +177,6 @@ func (c *Character) LevelUp() {
 		c.Def += 2
 	}
 
-	// Reset vie/mana
 	c.HP = c.MaxHP
 	c.Mana = c.MaxMana
 
@@ -177,12 +185,57 @@ func (c *Character) LevelUp() {
 		c.MaxHP, c.MaxMana, c.Atk, c.Def)
 }
 
+// === Gestion de l’inventaire ===
+func (c *Character) AddItem(item string, qty int) {
+	c.Inventory[item] += qty
+	fmt.Printf("🧳 Vous obtenez %d x %s\n", qty, item)
+}
+
+func (c *Character) RemoveItem(item string, qty int) bool {
+	if c.Inventory[item] < qty {
+		return false
+	}
+	c.Inventory[item] -= qty
+	if c.Inventory[item] == 0 {
+		delete(c.Inventory, item)
+	}
+	return true
+}
+
+// === Utiliser un objet sur un joueur ===
+func (c *Character) UseItem(item string, target *Character) {
+	switch item {
+	case "Potion de soin":
+		if c.RemoveItem(item, 1) {
+			heal := 50
+			target.HP += heal
+			if target.HP > target.MaxHP {
+				target.HP = target.MaxHP
+			}
+			fmt.Printf("🍷 %s utilise une potion de soin → %s récupère %d PV (HP: %d/%d)\n",
+				c.Name, target.Name, heal, target.HP, target.MaxHP)
+		} else {
+			fmt.Println("❌ Aucune potion de soin disponible.")
+		}
+	}
+}
+
+// === Utiliser un objet sur un monstre ===
+func (c *Character) UseItemOnMonster(item string, target *monster.Monster) {
+	switch item {
+	case "Potion de poison":
+		if c.RemoveItem(item, 1) {
+			target.ApplyStatus("Poison", 3, 5)
+		} else {
+			fmt.Println("❌ Aucune potion de poison disponible.")
+		}
+	default:
+		fmt.Println("❌ Objet inconnu :", item)
+	}
+}
+
 // === Apprendre un nouveau sort ===
 func (c *Character) LearnSkill(newSkill skills.Skill) {
-	if newSkill.Name == "Boule de feu" && c.Class != "Mage" {
-		fmt.Println("❌ Seul un Mage peut apprendre ce sort.")
-		return
-	}
 	for _, s := range c.Skills {
 		if s.Name == newSkill.Name {
 			fmt.Println("❌ Vous connaissez déjà ce sort :", newSkill.Name)
@@ -193,71 +246,56 @@ func (c *Character) LearnSkill(newSkill skills.Skill) {
 	fmt.Println("✨ Nouveau sort appris :", newSkill.Name)
 }
 
-// === Utiliser un sort sur une cible ===
-func (c *Character) UseSkill(skillName string, target *Character) {
-	for _, s := range c.Skills {
-		if s.Name == skillName {
-			// Vérif restriction Mage
-			if s.Name == "Boule de feu" && c.Class != "Mage" {
-				fmt.Println("❌ Seul un Mage peut utiliser ce sort.")
-				return
-			}
-
-			// Vérif mana
-			if c.Mana < s.ManaCost {
-				fmt.Println("❌ Pas assez de mana pour lancer", s.Name)
-				return
-			}
-
-			// Consommer le mana
-			c.Mana -= s.ManaCost
-
-			// Si c’est un soin
-			if s.IsHeal {
-				healAmount := s.Power + (c.Mana / 10)
-				target.HP += healAmount
-				if target.HP > target.MaxHP {
-					target.HP = target.MaxHP
-				}
-				fmt.Printf("✨ %s utilise %s → %s récupère %d PV (HP: %d/%d)\n",
-					c.Name, s.Name, target.Name, healAmount, target.HP, target.MaxHP)
-				return
-			}
-
-			// Sinon → attaque
-			var rawDamage int
-			if s.IsMagic {
-				rawDamage = s.Power + (c.Mana / 5)
-			} else {
-				rawDamage = s.Power + (c.Atk / 2)
-			}
-
-			// Réduction par la DEF
-			finalDamage := rawDamage - target.Def
-			if finalDamage < 0 {
-				finalDamage = 0
-			}
-
-			// Appliquer les dégâts
-			target.HP -= finalDamage
-			if target.HP < 0 {
-				target.HP = 0
-			}
-
-			fmt.Printf("🔥 %s utilise %s sur %s → %d dégâts (HP restants : %d/%d)\n",
-				c.Name, s.Name, target.Name, finalDamage, target.HP, target.MaxHP)
-
-			// Vérifier la mort
-			if target.HP == 0 {
-				fmt.Printf("💀 %s est mort !\n", target.Name)
-			}
-			return
+// === Utiliser un sort sur un monstre ===
+func (c *Character) UseSkillOnMonster(skillName string, target *monster.Monster) {
+	var s *skills.Skill
+	for i := range c.Skills {
+		if c.Skills[i].Name == skillName {
+			s = &c.Skills[i]
+			break
 		}
 	}
-	fmt.Println("❌ Sort inconnu :", skillName)
+	if s == nil {
+		fmt.Println("❌ Sort inconnu :", skillName)
+		return
+	}
+
+	if c.Mana < s.ManaCost {
+		fmt.Println("❌ Pas assez de mana pour lancer", s.Name)
+		return
+	}
+	c.Mana -= s.ManaCost
+
+	if s.IsHeal {
+		healAmount := s.Power + (c.Mana / 10)
+		c.HP += healAmount
+		if c.HP > c.MaxHP {
+			c.HP = c.MaxHP
+		}
+		fmt.Printf("✨ %s utilise %s → récupère %d PV (HP: %d/%d)\n",
+			c.Name, s.Name, healAmount, c.HP, c.MaxHP)
+		return
+	}
+
+	rawDamage := s.Power + (c.Atk / 2)
+	if s.IsMagic {
+		rawDamage = s.Power + (c.Mana / 5)
+	}
+	finalDamage := rawDamage - target.Def
+	if finalDamage < 0 {
+		finalDamage = 0
+	}
+
+	target.HP -= finalDamage
+	if target.HP < 0 {
+		target.HP = 0
+	}
+
+	fmt.Printf("🔥 %s utilise %s sur %s → %d dégâts (HP restants : %d/%d)\n",
+		c.Name, s.Name, target.Name, finalDamage, target.HP, target.HPMax)
 }
 
-// === Appliquer un statut (poison, brûlure...) ===
+// Statuts
 func (c *Character) ApplyStatus(name string, duration int, damage int) {
 	for _, s := range c.Statuses {
 		if s.Name == name {
@@ -269,7 +307,6 @@ func (c *Character) ApplyStatus(name string, duration int, damage int) {
 	fmt.Printf("%s est maintenant affecté par %s (%d tours).\n", c.Name, name, duration)
 }
 
-// === Mettre à jour les statuts à chaque tour ===
 func (c *Character) UpdateStatuses() {
 	var remaining []Status
 	for _, s := range c.Statuses {
@@ -292,7 +329,25 @@ func (c *Character) UpdateStatuses() {
 	c.Statuses = remaining
 }
 
-// === Affichage résumé (pendant création du perso) ===
+// Recalculer les stats à partir de l’équipement
+func (c *Character) RecalculateStatsFromEquipment() {
+	hp, mana, atk, def, spd, crit := c.Equip.TotalStats()
+	c.MaxHP += hp
+	c.MaxMana += mana
+	c.Atk += atk
+	c.Def += def
+	c.Spd += spd
+	c.Crit += crit
+
+	if c.HP > c.MaxHP {
+		c.HP = c.MaxHP
+	}
+	if c.Mana > c.MaxMana {
+		c.Mana = c.MaxMana
+	}
+}
+
+// Affichages
 func (c Character) DisplaySummary() {
 	fmt.Println("\n--- Résumé ---")
 	fmt.Printf("Nom   : %s (%s)\n", c.Name, c.Gender)
@@ -300,7 +355,6 @@ func (c Character) DisplaySummary() {
 	fmt.Println("Niveau:", c.Level, "| XP:", c.Exp, "/", c.ExpNext)
 }
 
-// === Affichage complet (menu principal) ===
 func (c Character) DisplayFull() {
 	fmt.Println("\n=== Informations du personnage ===")
 	fmt.Printf("Nom    : %s (%s)\n", c.Name, c.Gender)
@@ -312,7 +366,6 @@ func (c Character) DisplayFull() {
 	fmt.Printf("Arme   : %s\n", c.Weapon)
 	fmt.Printf("Or     : %d %s\n", c.Wallet.Amount, c.Wallet.Currency)
 
-	// Affichage des compétences
 	if len(c.Skills) > 0 {
 		fmt.Println("\n--- Compétences ---")
 		for _, s := range c.Skills {
@@ -322,11 +375,60 @@ func (c Character) DisplayFull() {
 		fmt.Println("Aucune compétence connue.")
 	}
 
-	// Affichage des statuts
 	if len(c.Statuses) > 0 {
 		fmt.Println("\n--- Statuts ---")
 		for _, s := range c.Statuses {
 			fmt.Printf("- %s (%d tours restants)\n", s.Name, s.Duration)
 		}
 	}
+
+	if len(c.Inventory) > 0 {
+		fmt.Println("\n--- Inventaire ---")
+		for item, qty := range c.Inventory {
+			fmt.Printf("- %s x%d\n", item, qty)
+		}
+	}
+
+	// 🔹 Affichage de l’équipement
+	c.Equip.Display()
+}
+
+// === Charger un personnage depuis une sauvegarde ===
+func LoadFromSave(state save.GameState) Character {
+	c := Character{
+		Name:      state.Name,
+		Class:     state.Class,
+		Gender:    "Inconnu", // pas stocké dans la sauvegarde actuelle
+		Level:     1,         // valeur par défaut
+		Exp:       0,
+		ExpNext:   10,
+		Wallet:    money.Money{Amount: state.Money, Currency: "Gold"},
+		Inventory: map[string]int{},
+		Equip:     equipment.EquipmentSet{},
+	}
+
+	// Inventaire sauvegardé (si présent)
+	if state.Inventory != nil {
+		c.Inventory = state.Inventory
+	}
+
+	// Stats de base selon la classe
+	stats, ok := class.Classes[state.Class]
+	if ok {
+		c.MaxHP = stats.HP
+		c.HP = c.MaxHP
+		c.MaxMana = stats.Mana
+		c.Mana = c.MaxMana
+		c.Atk = stats.Atk
+		c.Def = stats.Def
+		c.Spd = stats.Spd
+		c.Crit = stats.Crit
+		c.Weapon = stats.Weapon
+		c.Skills = skills.ClassSkills[state.Class]
+	}
+
+	// Recalcule les bonus des équipements (si tu sauvegardes l’équipement plus tard)
+	c.RecalculateStatsFromEquipment()
+
+	return c
 }
