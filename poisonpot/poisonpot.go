@@ -3,22 +3,20 @@ package poisonpot
 import (
 	"fmt"
 
-	"github.com/Alexanger300/projet-red_Arden/character"
+	"github.com/Alexanger300/projet-red_Forge/character"
 )
 
-// ApplyPoison applique un effet de poison sur la cible pendant X tours
-func ApplyPoison(user *character.Character, target *character.Character) {
-	if target == nil || !target.IsAlive() {
-		fmt.Println("❌ Cible invalide.")
-		return
-	}
+// Constants pour équilibrer la potion de poison
+const (
+	poisonDuration = 3 // dure 3 tours
+	poisonDamage   = 5 // 5 dégâts par tour
+)
 
-	// Dégâts fixes par tour
-	poisonDamage := 5
-	poisonDuration := 3 // nombre de tours
+// UsePoisonPotion applique un poison à une cible
+func UsePoisonPotion(user *character.Character, target *character.Character) {
+	// Vérifier si le joueur a bien une potion (facultatif : lier à inventory)
+	fmt.Printf("🧪 %s utilise une potion de poison sur %s !\n", user.Name, target.Name)
 
-	fmt.Printf("☠️ %s utilise une Potion de poison sur %s ! (%d tours)\n", user.Name, target.Name, poisonDuration)
-
-	// On marque la cible comme empoisonnée
+	// Appliquer le statut Poison
 	target.ApplyStatus("Poison", poisonDuration, poisonDamage)
 }
