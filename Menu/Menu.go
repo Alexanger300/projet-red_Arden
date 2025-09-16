@@ -14,7 +14,7 @@ func ShowMenu() {
 	fmt.Scan(&choice)
 	switch choice {
 	case 1:
-		fmt.Println("DisplayInfo()")
+		fmt.Println("DisplayFull()")
 	case 2:
 		fmt.Println("ShowInventory()")
 	case 3:

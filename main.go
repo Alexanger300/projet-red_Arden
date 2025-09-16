@@ -1,8 +1,7 @@
 package main
 
-import "github.com/Alexanger300/projet-red_Arden/character"
+import "github.com/Alexanger300/projet-red_Forge/start"
 
 func main() {
-	player := character.InitCharacter()
-	player.Display()
+	start.DisplayMenu()
 }
