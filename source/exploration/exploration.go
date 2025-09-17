@@ -3,10 +3,10 @@ package exploration
 import (
 	"fmt"
 
-	"github.com/Alexanger300/projet-red_Forge/character"
-	"github.com/Alexanger300/projet-red_Forge/fight"
-	"github.com/Alexanger300/projet-red_Forge/inventory"
-	"github.com/Alexanger300/projet-red_Forge/monster"
+	"github.com/Alexanger300/projet-red_Forge/source/character"
+	"github.com/Alexanger300/projet-red_Forge/source/fight"
+	"github.com/Alexanger300/projet-red_Forge/source/inventory"
+	"github.com/Alexanger300/projet-red_Forge/source/monster"
 )
 
 // Définition des ressources lootables par zone
@@ -18,10 +18,12 @@ var zoneLoots = map[string][]string{
 
 func Start(player *character.Character) {
 	for {
+		player.DisplayStatsBar()
+
 		fmt.Println("\n=== 🌌 Exploration des terres d'Arden ===")
-		fmt.Println("1. 🌲 Forêt sombre")
-		fmt.Println("2. 🏔️ Montagnes glacées")
-		fmt.Println("3. ☠️ Ruines maudites")
+		fmt.Println("1. Forêt sombre")
+		fmt.Println("2. Montagnes glacées")
+		fmt.Println("3. Ruines maudites")
 		fmt.Println("0. Retour")
 
 		var choix int
@@ -75,7 +77,7 @@ func exploreZone(player *character.Character, enemy *monster.Monster, zoneName s
 			if loots, ok := zoneLoots[zoneName]; ok {
 				for _, item := range loots {
 					inventory.AddItem(item, 1)
-					fmt.Printf("🌿 Vous trouvez : %s\n", item)
+					fmt.Printf(" Vous trouvez : %s\n", item)
 				}
 			}
 		} else {

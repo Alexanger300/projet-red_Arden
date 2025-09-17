@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 
-	"github.com/Alexanger300/projet-red_Forge/character"
-	"github.com/Alexanger300/projet-red_Forge/monster"
+	"github.com/Alexanger300/projet-red_Forge/source/character"
+	"github.com/Alexanger300/projet-red_Forge/source/monster"
 )
 
 func EnemyTurn(enemy *monster.Monster, player *character.Character) {

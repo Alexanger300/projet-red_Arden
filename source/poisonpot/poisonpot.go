@@ -3,7 +3,7 @@ package poisonpot
 import (
 	"fmt"
 
-	"github.com/Alexanger300/projet-red_Forge/character"
+	"github.com/Alexanger300/projet-red_Forge/source/character"
 )
 
 const (

@@ -3,8 +3,8 @@ package takepot
 import (
 	"fmt"
 
-	"github.com/Alexanger300/projet-red_Forge/character"
-	"github.com/Alexanger300/projet-red_Forge/inventory"
+	"github.com/Alexanger300/projet-red_Forge/source/character"
+	"github.com/Alexanger300/projet-red_Forge/source/inventory"
 )
 
 // TakePot : consomme une potion de soin et soigne le personnage

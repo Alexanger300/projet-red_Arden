@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Alexanger300/projet-red_Forge/character"
-	"github.com/Alexanger300/projet-red_Forge/inn"
-	"github.com/Alexanger300/projet-red_Forge/introduction"
-	"github.com/Alexanger300/projet-red_Forge/save"
+	"github.com/Alexanger300/projet-red_Forge/source/character"
+	"github.com/Alexanger300/projet-red_Forge/source/inn"
+	"github.com/Alexanger300/projet-red_Forge/source/introduction"
+	"github.com/Alexanger300/projet-red_Forge/source/save"
 )
 
 func DisplayMenu() {
@@ -15,7 +15,7 @@ func DisplayMenu() {
 		fmt.Println("=== 🌌 Les Chroniques d'Arden ===")
 		fmt.Println("1 - Nouvelle Partie")
 		fmt.Println("2 - Charger une Partie")
-		fmt.Println("3 - Options")
+		fmt.Println("3 - Qui sont-ils ?")
 		fmt.Println("4 - Quitter")
 
 		var choice int
@@ -42,7 +42,7 @@ func DisplayMenu() {
 			inn.Inn(&player)
 
 		case 3:
-			fmt.Println("⚙️ Options (pas encore implémentées)")
+			fmt.Println("ABBA / Steven Spielberg")
 		case 4:
 			fmt.Println("👋 Au revoir !")
 			os.Exit(0)
