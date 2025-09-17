@@ -3,8 +3,8 @@ package introduction
 import (
 	"fmt"
 
-	"github.com/Alexanger300/projet-red_Forge/character"
-	"github.com/Alexanger300/projet-red_Forge/inn"
+	"github.com/Alexanger300/projet-red_Forge/source/character"
+	"github.com/Alexanger300/projet-red_Forge/source/inn"
 )
 
 func Introduction() {

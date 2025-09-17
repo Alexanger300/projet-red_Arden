@@ -140,3 +140,13 @@ func UpgradeBag(slots int) {
 	MaxTotal += slots
 	fmt.Printf("👜 Votre sac peut maintenant contenir %d objets au total !\n", MaxTotal)
 }
+
+// Compter le nombre d'un objet spécifique
+func CountItem(name string) int {
+	inventory, err := loadInventory()
+	if err != nil {
+		fmt.Println("Erreur:", err)
+		return 0
+	}
+	return inventory[name]
+}

@@ -3,8 +3,8 @@ package merchant
 import (
 	"fmt"
 
-	"github.com/Alexanger300/projet-red_Forge/character"
-	"github.com/Alexanger300/projet-red_Forge/inventory"
+	"github.com/Alexanger300/projet-red_Forge/source/character"
+	"github.com/Alexanger300/projet-red_Forge/source/inventory"
 )
 
 func Welcome(player *character.Character) {
