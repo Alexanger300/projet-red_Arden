@@ -13,9 +13,9 @@ import (
 
 // Gestion des statuts
 type Status struct {
-	Name     string // Nom du statut (ex: Poison)
-	Duration int    // Nombre de tours restants
-	Damage   int    // Dégâts par tour (si applicable)
+	Name     string
+	Duration int
+	Damage   int
 }
 
 // Structure du personnage
@@ -39,32 +39,38 @@ type Character struct {
 	Wallet  money.Money
 	Skills  []skills.Skill
 
+	// Stats de base (recalcul à chaque update)
+	BaseHP   int
+	BaseMana int
+	BaseAtk  int
+	BaseDef  int
+	BaseSpd  int
+	BaseCrit int
+
 	Statuses  []Status
-	Inventory map[string]int         //  Inventaire (objet → quantité)
-	Equip     equipment.EquipmentSet //  Ensemble d’équipements
+	Inventory map[string]int
+	Weapons   map[string]equipment.Equipment
+	Equip     equipment.EquipmentSet
 }
 
-// Création du personnage
+// --- Création du personnage ---
 func InitCharacter() Character {
 	var c Character
 	var choiceNumber int
 	var confirm string
 	confirmed := false
 
-	// Nom du personnage
 	fmt.Print("Entrez votre prénom : ")
 	_, err := fmt.Scan(&c.Name)
 	if err != nil {
 		fmt.Println("Erreur :", err)
 	}
 
-	// Sexe du personnage
 	fmt.Print("Choisissez le sexe (Homme/Femme/Autre) : ")
 	fmt.Scan(&c.Gender)
 
 	fmt.Printf("Voici le nom de votre personnage : %s (%s)\n", c.Name, c.Gender)
 
-	// Choix de la classe
 	for !confirmed {
 		fmt.Println("\nQuelle Classe voulez-vous ?")
 		fmt.Println("1: Paladin ⚔️")
@@ -89,7 +95,6 @@ func InitCharacter() Character {
 			continue
 		}
 
-		// Récupérer les stats depuis "class"
 		stats := class.Classes[className]
 		fmt.Printf("\n%s → %s\n", className, stats.Description)
 		fmt.Printf("PV: %d | ATK: %d | DEF: %d | Mana: %d | SPD: %d | CRIT: %d%% | Arme: %s\n",
@@ -100,6 +105,16 @@ func InitCharacter() Character {
 
 		if confirm == "Oui" || confirm == "oui" {
 			c.Class = className
+
+			// Stats de base
+			c.BaseHP = stats.HP
+			c.BaseMana = stats.Mana
+			c.BaseAtk = stats.Atk
+			c.BaseDef = stats.Def
+			c.BaseSpd = stats.Spd
+			c.BaseCrit = stats.Crit
+
+			// Stats courantes
 			c.HP = stats.HP
 			c.MaxHP = stats.HP
 			c.Mana = stats.Mana
@@ -109,6 +124,7 @@ func InitCharacter() Character {
 			c.Spd = stats.Spd
 			c.Crit = stats.Crit
 			c.Weapon = stats.Weapon
+
 			c.Wallet = money.Money{Amount: 100, Currency: "Gold"}
 			c.Skills = skills.ClassSkills[className]
 
@@ -117,13 +133,16 @@ func InitCharacter() Character {
 			c.Exp = 0
 			c.ExpNext = 10
 
-			// Inventaire de base
+			// Inventaire
 			c.Inventory = map[string]int{
 				"Potion de soin":   2,
 				"Potion de poison": 1,
 			}
 
-			// Équipement vide au départ
+			// Armes forgées
+			c.Weapons = make(map[string]equipment.Equipment)
+
+			// Équipement vide
 			c.Equip = equipment.EquipmentSet{}
 
 			confirmed = true
@@ -138,7 +157,7 @@ func (c *Character) IsAlive() bool {
 	return c.HP > 0
 }
 
-// Gagner de l’expérience
+// Gain d’expérience
 func (c *Character) GainExp(amount int) {
 	c.Exp += amount
 	fmt.Printf("✨ %s gagne %d points d'expérience ! (%d/%d)\n",
@@ -157,26 +176,28 @@ func (c *Character) LevelUp() {
 
 	switch c.Class {
 	case "Paladin":
-		c.MaxHP += 15
-		c.MaxMana += 5
-		c.Atk += 3
-		c.Def += 4
+		c.BaseHP += 15
+		c.BaseMana += 5
+		c.BaseAtk += 3
+		c.BaseDef += 4
 	case "Géant":
-		c.MaxHP += 20
-		c.Atk += 5
-		c.Def += 5
+		c.BaseHP += 20
+		c.BaseAtk += 5
+		c.BaseDef += 5
 	case "Mage":
-		c.MaxHP += 8
-		c.MaxMana += 15
-		c.Atk += 2
-		c.Def += 1
+		c.BaseHP += 8
+		c.BaseMana += 15
+		c.BaseAtk += 2
+		c.BaseDef += 1
 	case "Guérisseur":
-		c.MaxHP += 10
-		c.MaxMana += 12
-		c.Atk += 1
-		c.Def += 2
+		c.BaseHP += 10
+		c.BaseMana += 12
+		c.BaseAtk += 1
+		c.BaseDef += 2
 	}
 
+	// Recalcul
+	c.RecalculateStatsFromEquipment()
 	c.HP = c.MaxHP
 	c.Mana = c.MaxMana
 
@@ -185,7 +206,7 @@ func (c *Character) LevelUp() {
 		c.MaxHP, c.MaxMana, c.Atk, c.Def)
 }
 
-// Gestion de l’inventaire
+// Gestion inventaire
 func (c *Character) AddItem(item string, qty int) {
 	c.Inventory[item] += qty
 	fmt.Printf("🧳 Vous obtenez %d x %s\n", qty, item)
@@ -202,7 +223,7 @@ func (c *Character) RemoveItem(item string, qty int) bool {
 	return true
 }
 
-// Utiliser un objet sur un joueur
+// Utiliser un objet sur joueur
 func (c *Character) UseItem(item string, target *Character) {
 	switch item {
 	case "Potion de soin":
@@ -220,7 +241,7 @@ func (c *Character) UseItem(item string, target *Character) {
 	}
 }
 
-// Utiliser un objet sur un monstre
+// Utiliser un objet sur monstre
 func (c *Character) UseItemOnMonster(item string, target *monster.Monster) {
 	switch item {
 	case "Potion de poison":
@@ -234,7 +255,7 @@ func (c *Character) UseItemOnMonster(item string, target *monster.Monster) {
 	}
 }
 
-// Apprendre un nouveau sort
+// Apprendre une compétence
 func (c *Character) LearnSkill(newSkill skills.Skill) {
 	for _, s := range c.Skills {
 		if s.Name == newSkill.Name {
@@ -246,7 +267,7 @@ func (c *Character) LearnSkill(newSkill skills.Skill) {
 	fmt.Println("✨ Nouveau sort appris :", newSkill.Name)
 }
 
-// Utiliser un sort sur un monstre
+// Utiliser une compétence
 func (c *Character) UseSkillOnMonster(skillName string, target *monster.Monster) {
 	var s *skills.Skill
 	for i := range c.Skills {
@@ -329,8 +350,17 @@ func (c *Character) UpdateStatuses() {
 	c.Statuses = remaining
 }
 
-// Recalculer les stats à partir de l’équipement
+// --- Recalcul des stats ---
 func (c *Character) RecalculateStatsFromEquipment() {
+	// Repartir des stats de base
+	c.MaxHP = c.BaseHP
+	c.MaxMana = c.BaseMana
+	c.Atk = c.BaseAtk
+	c.Def = c.BaseDef
+	c.Spd = c.BaseSpd
+	c.Crit = c.BaseCrit
+
+	// Bonus armures (tête, corps, jambes)
 	hp, mana, atk, def, spd, crit := c.Equip.TotalStats()
 	c.MaxHP += hp
 	c.MaxMana += mana
@@ -339,6 +369,17 @@ func (c *Character) RecalculateStatsFromEquipment() {
 	c.Spd += spd
 	c.Crit += crit
 
+	// Bonus arme (séparé !)
+	if c.Equip.Weapon.Name != "" {
+		c.MaxHP += c.Equip.Weapon.HP
+		c.MaxMana += c.Equip.Weapon.Mana
+		c.Atk += c.Equip.Weapon.Atk
+		c.Def += c.Equip.Weapon.Def
+		c.Spd += c.Equip.Weapon.Spd
+		c.Crit += c.Equip.Weapon.Crit
+	}
+
+	// Clamp PV/mana
 	if c.HP > c.MaxHP {
 		c.HP = c.MaxHP
 	}
@@ -347,7 +388,7 @@ func (c *Character) RecalculateStatsFromEquipment() {
 	}
 }
 
-// Affichages
+// --- Affichages ---
 func (c Character) DisplaySummary() {
 	fmt.Println("\n--- Résumé ---")
 	fmt.Printf("Nom   : %s (%s)\n", c.Name, c.Gender)
@@ -389,7 +430,15 @@ func (c Character) DisplayFull() {
 		}
 	}
 
-	// 🔹 Affichage de l’équipement
+	if len(c.Weapons) > 0 {
+		fmt.Println("\n--- Armes forgées ---")
+		for _, w := range c.Weapons {
+			fmt.Printf("- %s (ATK: %d, Classe: %s)\n", w.Name, w.Atk, w.Class)
+		}
+	} else {
+		fmt.Println("\n--- Armes forgées ---\nAucune arme.")
+	}
+
 	c.Equip.Display()
 }
 
@@ -399,8 +448,8 @@ func (c Character) DisplayStatsBar() {
 		c.Name, c.Class, c.Level, c.Exp, c.ExpNext)
 	fmt.Printf("HP: %d/%d | Mana: %d/%d | ATK: %d | DEF: %d | SPD: %d | CRIT: %d%%\n",
 		c.HP, c.MaxHP, c.Mana, c.MaxMana, c.Atk, c.Def, c.Spd, c.Crit)
-
 }
+
 func (c Character) DisplayInventoryAndEquipment() {
 	fmt.Println("\n=== Inventaire ===")
 	if len(c.Inventory) == 0 {
@@ -411,7 +460,15 @@ func (c Character) DisplayInventoryAndEquipment() {
 		}
 	}
 
-	// 🔹 Affichage séparé pour l’équipement
+	fmt.Println("\n=== Armes forgées ===")
+	if len(c.Weapons) == 0 {
+		fmt.Println("Aucune arme forgée.")
+	} else {
+		for _, w := range c.Weapons {
+			fmt.Printf("- %s (ATK: %d, Classe: %s)\n", w.Name, w.Atk, w.Class)
+		}
+	}
+
 	fmt.Println("\n=== Équipement ===")
 	if c.Equip.Head.Name != "" {
 		fmt.Printf("Tête : %s\n", c.Equip.Head.Name)
@@ -430,21 +487,21 @@ func (c Character) DisplayInventoryAndEquipment() {
 	}
 }
 
-// Charger un personnage depuis une sauvegarde
+// Charger une sauvegarde
 func LoadFromSave(state save.GameState) Character {
 	c := Character{
 		Name:      state.Name,
 		Class:     state.Class,
-		Gender:    "Inconnu", // pas stocké dans la sauvegarde actuelle
-		Level:     1,         // valeur par défaut
+		Gender:    "Inconnu",
+		Level:     1,
 		Exp:       0,
 		ExpNext:   10,
 		Wallet:    money.Money{Amount: state.Money, Currency: "Gold"},
 		Inventory: map[string]int{},
 		Equip:     equipment.EquipmentSet{},
+		Weapons:   make(map[string]equipment.Equipment),
 	}
 
-	// Inventaire sauvegardé (si présent)
 	if state.Inventory != nil {
 		c.Inventory = state.Inventory
 	} else {
@@ -454,9 +511,17 @@ func LoadFromSave(state save.GameState) Character {
 		}
 	}
 
-	// Stats de base selon la classe
 	stats, ok := class.Classes[state.Class]
 	if ok {
+		// Base
+		c.BaseHP = stats.HP
+		c.BaseMana = stats.Mana
+		c.BaseAtk = stats.Atk
+		c.BaseDef = stats.Def
+		c.BaseSpd = stats.Spd
+		c.BaseCrit = stats.Crit
+
+		// Courantes
 		c.MaxHP = stats.HP
 		c.HP = c.MaxHP
 		c.MaxMana = stats.Mana
@@ -469,8 +534,6 @@ func LoadFromSave(state save.GameState) Character {
 		c.Skills = skills.ClassSkills[state.Class]
 	}
 
-	// Recalcule les bonus des équipements (si tu sauvegardes l’équipement plus tard)
 	c.RecalculateStatsFromEquipment()
-
 	return c
 }
