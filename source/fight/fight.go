@@ -14,8 +14,13 @@ func StartFight(player *character.Character, enemy *monster.Monster) bool {
 
 	// Boucle de combat
 	for player.IsAlive() && enemy.IsAlive() {
-		//  Tour du joueur
-		playerTurn(player, enemy)
+		// Tour du joueur
+		escaped := playerTurn(player, enemy)
+		if escaped {
+			fmt.Println("Vous avez réussi à fuir le combat ! Cependant, vous avez perdu 10 d'or en fuyant.")
+			return false
+		}
+
 		if !enemy.IsAlive() {
 			break
 		}
@@ -39,19 +44,22 @@ func StartFight(player *character.Character, enemy *monster.Monster) bool {
 	// Fin du combat
 	if player.IsAlive() {
 		fmt.Printf("\n🏆 Victoire ! Vous avez vaincu %s !\n", enemy.Name)
+
+		// 🔹 Ajout du loot du monstre (si défini)
+		if enemy.Loot != "" {
+			player.AddItem(enemy.Loot, 1) // 1 exemplaire du loot
+			fmt.Printf("📦 Vous récupérez : %s\n", enemy.Loot)
+		}
+
 		return true
 	}
+
 	fmt.Println("\n💀 Vous êtes mort...")
 	return false
 }
 
-//	Tour du joueur
-//
-// Ne consomme le tour QUE si une action valide est effectuée.
-// - 1: Attaque → termine le tour
-// - 2: Compétences → sous-menu avec "0. Retour". Retour/choix invalide ne consomment PAS le tour
-// - 3: Inventaire  → sous-menu avec "0. Retour". Retour/choix invalide ne consomment PAS le tour
-func playerTurn(player *character.Character, enemy *monster.Monster) {
+// Tour du joueur
+func playerTurn(player *character.Character, enemy *monster.Monster) bool {
 	for {
 		player.DisplayStatsBar()
 
@@ -60,6 +68,7 @@ func playerTurn(player *character.Character, enemy *monster.Monster) {
 		fmt.Println("1. Attaque basique ⚔️")
 		fmt.Println("2. Utiliser une compétence 🔮")
 		fmt.Println("3. Inventaire 🎒")
+		fmt.Println("4. Fuir 🏃‍♂️")
 
 		var choice int
 		fmt.Print("Votre choix : ")
@@ -67,7 +76,7 @@ func playerTurn(player *character.Character, enemy *monster.Monster) {
 
 		switch choice {
 		case 1:
-			// Attaque basique (formule équilibrée déjà utilisée chez toi)
+			// Attaque basique
 			damage := player.Atk - (enemy.Def / 2)
 			if damage < 1 {
 				damage = 1
@@ -79,13 +88,13 @@ func playerTurn(player *character.Character, enemy *monster.Monster) {
 			fmt.Printf("⚔️ %s attaque %s → %d dégâts (HP ennemi : %d/%d)\n",
 				player.Name, enemy.Name, damage, enemy.HP, enemy.HPMax)
 			time.Sleep(1 * time.Second)
-			return // ✅ tour consommé
+			return false // tour consommé, pas de fuite
 
 		case 2:
-			// Sous-menu compétences (avec retour)
+			// Sous-menu compétences
 			if len(player.Skills) == 0 {
 				fmt.Println("❌ Vous n'avez aucune compétence.")
-				continue // ❌ pas de compétence → on ne consomme pas le tour
+				continue
 			}
 
 			for {
@@ -94,36 +103,32 @@ func playerTurn(player *character.Character, enemy *monster.Monster) {
 					fmt.Printf("%d. %s (Mana %d) → %s\n", i+1, s.Name, s.ManaCost, s.Description)
 				}
 				fmt.Println("0. Retour")
+
 				var idx int
 				fmt.Print("Votre choix : ")
 				fmt.Scan(&idx)
 
 				if idx == 0 {
-					// ↩️ retour au menu principal du tour sans perdre le tour
 					break
 				}
 				if idx < 1 || idx > len(player.Skills) {
 					fmt.Println("❌ Choix invalide.")
-					continue // re-afficher la liste de compétences
+					continue
 				}
 
-				// On lance la compétence choisie
 				player.UseSkillOnMonster(player.Skills[idx-1].Name, enemy)
 				time.Sleep(1 * time.Second)
-				return // ✅ tour consommé (on a effectivement agi)
+				return false // tour consommé, pas de fuite
 			}
-
-			// si on a “break” depuis le sous-menu → on repart en haut du for et on repropose 1/2/3
 			continue
 
 		case 3:
-			// Sous-menu inventaire (avec retour)
+			// Sous-menu inventaire
 			if len(player.Inventory) == 0 {
 				fmt.Println("❌ Inventaire vide.")
-				continue // pas de tour consommé
+				continue
 			}
 
-			// construire une liste d’items indexés
 			for {
 				fmt.Println("\n--- Inventaire ---")
 				i := 1
@@ -137,7 +142,7 @@ func playerTurn(player *character.Character, enemy *monster.Monster) {
 				}
 				if len(items) == 0 {
 					fmt.Println("❌ Inventaire vide.")
-					break // revient au menu principal du tour
+					break
 				}
 				fmt.Println("0. Retour")
 
@@ -146,35 +151,39 @@ func playerTurn(player *character.Character, enemy *monster.Monster) {
 				fmt.Scan(&idx)
 
 				if idx == 0 {
-					// ↩️ retour au menu principal du tour
 					break
 				}
 				if idx < 1 || idx > len(items) {
 					fmt.Println("❌ Choix invalide.")
-					continue // re-afficher inventaire
+					continue
 				}
 
-				// Utiliser l’objet sélectionné sur le monstre (ex: potion de poison)
-				player.UseItemOnMonster(items[idx-1], enemy)
+				// Vérifie l’objet choisi
+				chosen := items[idx-1]
+				if chosen == "Potion de soin" {
+					player.UseItem("Potion de soin", player) // soigne le joueur
+				} else {
+					player.UseItemOnMonster(chosen, enemy) // ex: potion de poison
+				}
+
 				time.Sleep(1 * time.Second)
-				return // ✅ tour consommé
+				return false // tour consommé, pas de fuite
 			}
-
-			continue // revient au menu principal du tour
-
-		default:
-			fmt.Println("❌ Choix invalide.")
-			// on REPROPOSE le menu au lieu de consommer le tour
 			continue
+
+		case 4:
+			// Fuite
+			player.Wallet.Spend(10) // coût de la fuite
+			return true
 		}
+		return false
 	}
 }
 
-// === Tour du monstre ===
+// Tour du monstre
 func monsterTurn(player *character.Character, enemy *monster.Monster) {
 	fmt.Printf("\n👹 Tour de %s\n", enemy.Name)
 
-	// Attaque spéciale si le monstre est à < 50% HP, sinon basique
 	if enemy.HP < enemy.HPMax/2 {
 		fmt.Printf("%s utilise son attaque spéciale : %s\n", enemy.Name, enemy.SpecialAtk)
 		damage := (enemy.Atk*2 - (player.Def / 2))

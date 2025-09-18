@@ -16,8 +16,8 @@ func Inn(player *character.Character) {
 		player.DisplayStatsBar()
 
 		fmt.Println("\n=== 🏰 Auberge d'Arden ===")
-		fmt.Printf("Nom: %s | Classe: %s | Niveau: %d | XP: %d/%d\n",
-			player.Name, player.Class, player.Level, player.Exp, player.ExpNext)
+		fmt.Printf("Nom: %s | Classe: %s | Niveau: %d | XP: %d/%d\n | Argent: %d gold\n",
+			player.Name, player.Class, player.Level, player.Exp, player.ExpNext, player.Wallet.Amount)
 		fmt.Printf("HP: %d/%d | Mana: %d/%d | ATK: %d | DEF: %d | SPD: %d | CRIT: %d%%\n",
 			player.HP, player.MaxHP, player.Mana, player.MaxMana, player.Atk, player.Def, player.Spd, player.Crit)
 
@@ -48,21 +48,39 @@ func Inn(player *character.Character) {
 		case 3:
 			exploration.Start(player)
 		case 4:
+			fmt.Println("\n=== 🧳 Inventaire et Équipement ===")
 			player.DisplayInventoryAndEquipment()
+			fmt.Println("\n0. Retour")
+			var subChoice int
+			fmt.Print("Votre choix : ")
+			_, err := fmt.Scan(&subChoice)
+			if err != nil {
+				fmt.Println("Entrée invalide!", err)
+				continue
+			}
+			if subChoice != 0 {
+				fmt.Println("❌ Choix invalide. Tapez 0 pour revenir.")
+			}
 		case 5:
 			player.HP = player.MaxHP
 			player.Mana = player.MaxMana
 			fmt.Println("✨ Vous vous reposez et récupérez toute votre énergie !")
 		case 6:
+			var slot int
+			fmt.Print("Choisissez le slot de sauvegarde (1-3) : ")
+			fmt.Scan(&slot)
+
 			save.SaveGame(save.GameState{
+				SlotID:    slot,
 				Name:      player.Name,
 				Class:     player.Class,
 				Money:     player.Wallet.Amount,
 				Progress:  "auberge",
-				Inventory: map[string]int{},
+				Inventory: player.Inventory,
 			})
 			fmt.Println("💾 Partie sauvegardée. À bientôt !")
 			return
+
 		case 7:
 			fmt.Println("👋 Vous quittez l'auberge sans sauvegarder.")
 			return

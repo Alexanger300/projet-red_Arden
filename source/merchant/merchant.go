@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/Alexanger300/projet-red_Forge/source/character"
-	"github.com/Alexanger300/projet-red_Forge/source/inventory"
 )
 
 func Welcome(player *character.Character) {
@@ -52,35 +51,34 @@ func buyItems(player *character.Character) {
 	switch choice {
 	case 1:
 		if player.Wallet.Spend(20) {
-			inventory.AddItem("Potion de soin", 1)
+			player.Inventory["Potion de soin"]++
 			fmt.Println("✅ Vous avez acheté une Potion de soin !")
 		} else {
 			fmt.Println("❌ Pas assez de gold.")
 		}
 	case 2:
 		if player.Wallet.Spend(15) {
-			inventory.AddItem("Élixir de mana", 1)
+			player.Inventory["Élixir de mana"]++
 			fmt.Println("✅ Vous avez acheté un Élixir de mana !")
 		} else {
 			fmt.Println("❌ Pas assez de gold.")
 		}
 	case 3:
 		if player.Wallet.Spend(10) {
-			inventory.AddItem("Cuir de sanglier", 1)
+			player.Inventory["Cuir de sanglier"]++
 			fmt.Println("✅ Vous avez acheté un Cuir de sanglier !")
 		} else {
 			fmt.Println("❌ Pas assez de gold.")
 		}
 	case 4:
 		if player.Wallet.Spend(50) {
-			inventory.UpgradeBag(10)
-			fmt.Println("👜 Vous avez acheté un sac amélioré ! Votre inventaire peut contenir plus d'objets.")
+			fmt.Println("👜 Vous avez acheté un sac amélioré ! (implémente la capacité si besoin)")
 		} else {
 			fmt.Println("❌ Pas assez de gold.")
 		}
 	case 5:
 		if player.Wallet.Spend(25) {
-			inventory.AddItem("Potion de poison", 1)
+			player.Inventory["Potion de poison"]++
 			fmt.Println("☠️ Vous avez acheté une Potion de poison !")
 		} else {
 			fmt.Println("❌ Pas assez de gold.")
@@ -107,32 +105,44 @@ func sellItems(player *character.Character) {
 
 	switch choice {
 	case 1:
-		if inventory.HasItem("Potion de soin", 1) {
-			inventory.RemoveItem("Potion de soin", 1)
+		if player.Inventory["Potion de soin"] > 0 {
+			player.Inventory["Potion de soin"]--
+			if player.Inventory["Potion de soin"] == 0 {
+				delete(player.Inventory, "Potion de soin") // ✅ supprime la ligne
+			}
 			player.Wallet.Add(10)
 			fmt.Println("✅ Vous avez vendu une Potion de soin.")
 		} else {
 			fmt.Println("❌ Vous n'avez pas de Potion de soin à vendre.")
 		}
 	case 2:
-		if inventory.HasItem("Élixir de mana", 1) {
-			inventory.RemoveItem("Élixir de mana", 1)
+		if player.Inventory["Élixir de mana"] > 0 {
+			player.Inventory["Élixir de mana"]--
+			if player.Inventory["Élixir de mana"] == 0 {
+				delete(player.Inventory, "Élixir de mana")
+			}
 			player.Wallet.Add(7)
 			fmt.Println("✅ Vous avez vendu un Élixir de mana.")
 		} else {
 			fmt.Println("❌ Vous n'avez pas d'Élixir de mana à vendre.")
 		}
 	case 3:
-		if inventory.HasItem("Cuir de sanglier", 1) {
-			inventory.RemoveItem("Cuir de sanglier", 1)
+		if player.Inventory["Cuir de sanglier"] > 0 {
+			player.Inventory["Cuir de sanglier"]--
+			if player.Inventory["Cuir de sanglier"] == 0 {
+				delete(player.Inventory, "Cuir de sanglier")
+			}
 			player.Wallet.Add(5)
 			fmt.Println("✅ Vous avez vendu un Cuir de sanglier.")
 		} else {
 			fmt.Println("❌ Vous n'avez pas de Cuir de sanglier à vendre.")
 		}
 	case 4:
-		if inventory.HasItem("Potion de poison", 1) {
-			inventory.RemoveItem("Potion de poison", 1)
+		if player.Inventory["Potion de poison"] > 0 {
+			player.Inventory["Potion de poison"]--
+			if player.Inventory["Potion de poison"] == 0 {
+				delete(player.Inventory, "Potion de poison")
+			}
 			player.Wallet.Add(12)
 			fmt.Println("✅ Vous avez vendu une Potion de poison.")
 		} else {

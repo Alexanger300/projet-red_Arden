@@ -5,15 +5,22 @@ import (
 
 	"github.com/Alexanger300/projet-red_Forge/source/character"
 	"github.com/Alexanger300/projet-red_Forge/source/fight"
-	"github.com/Alexanger300/projet-red_Forge/source/inventory"
 	"github.com/Alexanger300/projet-red_Forge/source/monster"
 )
 
 // Définition des ressources lootables par zone
 var zoneLoots = map[string][]string{
-	"Forêt sombre":      {"Branche d'arbre, parchemin ancien"},
-	"Montagnes glacées": {"Lingot de fer"},
-	"Ruines maudites":   {"Cristal magique", "Pierre de vie"},
+	"Forêt sombre": {
+		"Branche d'arbre",
+		"Parchemin ancien",
+	},
+	"Montagnes glacées": {
+		"Lingot de fer",
+	},
+	"Ruines maudites": {
+		"Cristal magique",
+		"Pierre de vie",
+	},
 }
 
 func Start(player *character.Character) {
@@ -62,29 +69,24 @@ func exploreZone(player *character.Character, enemy *monster.Monster, zoneName s
 		player.Wallet.Add(enemy.GoldReward)
 		fmt.Printf("💰 Vous gagnez %d or. Total : %d\n", enemy.GoldReward, player.Wallet.Amount)
 
-		// Loot de monstre
-		if enemy.Loot != "" {
-			inventory.AddItem(enemy.Loot, 1)
-			fmt.Printf("📦 Vous récupérez : %s\n", enemy.Loot)
-		}
+		// ⚠️ Pas besoin de redonner le loot du monstre ici,
+		// fight.StartFight s'en occupe déjà !
 
-		// 🔹 Choix de loot de la zone
+		// 🔹 Fouille de la zone
 		var choix string
 		fmt.Printf("\nVoulez-vous fouiller la zone %s pour trouver des ressources ? (oui/non) : ", zoneName)
 		fmt.Scan(&choix)
 
 		if choix == "oui" || choix == "Oui" {
 			if loots, ok := zoneLoots[zoneName]; ok {
-				for _, item := range loots {
-					inventory.AddItem(item, 1)
-					fmt.Printf(" Vous trouvez : %s\n", item)
+				for _, loot := range loots {
+					player.AddItem(loot, 1) // 1 exemplaire de chaque ressource trouvée
+					fmt.Printf("Vous trouvez : %s\n", loot)
 				}
 			}
 		} else {
 			fmt.Println("👉 Vous retournez directement au village.")
 		}
 
-	} else {
-		fmt.Println("💀 Vous avez été vaincu… Retour à l'auberge.")
 	}
 }
