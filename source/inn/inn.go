@@ -2,7 +2,9 @@ package inn
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/Alexanger300/projet-red_Forge/asset/css"
 	"github.com/Alexanger300/projet-red_Forge/source/blacksmith"
 	"github.com/Alexanger300/projet-red_Forge/source/character"
 	"github.com/Alexanger300/projet-red_Forge/source/exploration"
@@ -12,17 +14,18 @@ import (
 
 // Auberge : lieu où le joueur se réveille et choisit où aller
 func Inn(player *character.Character) {
+
+	alreadyUsed := false
+	css.Clear()
 	for {
 		player.DisplayStatsBar()
-
 		fmt.Println("\n=== 🏰 Auberge d'Arden ===")
-		fmt.Printf("Nom: %s | Classe: %s | Niveau: %d | XP: %d/%d\n | Argent: %d gold\n",
-			player.Name, player.Class, player.Level, player.Exp, player.ExpNext, player.Wallet.Amount)
-		fmt.Printf("HP: %d/%d | Mana: %d/%d | ATK: %d | DEF: %d | SPD: %d | CRIT: %d%%\n",
-			player.HP, player.MaxHP, player.Mana, player.MaxMana, player.Atk, player.Def, player.Spd, player.Crit)
-
 		fmt.Println("\nVous vous réveillez dans une petite chambre d'auberge.")
-		fmt.Println("En sortant, vous voyez la place du village animée.")
+		if !alreadyUsed {
+			fmt.Println("En sortant, vous voyez la place du village animée.")
+			alreadyUsed = true
+		}
+
 		fmt.Println("\nQue voulez-vous faire ?")
 		fmt.Println("1. Aller voir le forgeron ⚒️")
 		fmt.Println("2. Aller voir le marchand 🏪")
@@ -62,8 +65,22 @@ func Inn(player *character.Character) {
 				fmt.Println("❌ Choix invalide. Tapez 0 pour revenir.")
 			}
 		case 5:
+			css.Clear()
+			text1 := "Z z Z Z"
+			text2 := " z z Z Z"
+			for _, c := range text1 {
+				fmt.Print(css.Bold + string(c) + css.Reset)
+				time.Sleep(500 * time.Millisecond)
+			}
+			time.Sleep(1 * time.Second)
+			for _, c := range text2 {
+				fmt.Print(css.Bold + string(c) + css.Reset)
+				time.Sleep(200 * time.Millisecond)
+			}
+			time.Sleep(1 * time.Second)
 			player.HP = player.MaxHP
 			player.Mana = player.MaxMana
+			fmt.Print("\n")
 			fmt.Println("✨ Vous vous reposez et récupérez toute votre énergie !")
 		case 6:
 			var slot int
@@ -77,6 +94,9 @@ func Inn(player *character.Character) {
 				Money:     player.Wallet.Amount,
 				Progress:  "auberge",
 				Inventory: player.Inventory,
+				Level:     player.Level,
+				Exp:       player.Exp,
+				ExpNext:   player.ExpNext,
 			})
 			fmt.Println("💾 Partie sauvegardée. À bientôt !")
 			return
@@ -85,6 +105,7 @@ func Inn(player *character.Character) {
 			fmt.Println("👋 Vous quittez l'auberge sans sauvegarder.")
 			return
 		default:
+			css.Clear()
 			fmt.Println("❌ Choix invalide.")
 		}
 	}

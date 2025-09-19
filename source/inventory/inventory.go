@@ -135,7 +135,7 @@ func ShowInventory() {
 	}
 }
 
-// ✅ Améliorer la capacité du sac
+// Améliorer la capacité du sac
 func UpgradeBag(slots int) {
 	MaxTotal += slots
 	fmt.Printf("👜 Votre sac peut maintenant contenir %d objets au total !\n", MaxTotal)

@@ -2,7 +2,9 @@ package character
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/Alexanger300/projet-red_Forge/asset/css"
 	"github.com/Alexanger300/projet-red_Forge/source/class"
 	"github.com/Alexanger300/projet-red_Forge/source/equipment"
 	"github.com/Alexanger300/projet-red_Forge/source/money"
@@ -54,25 +56,52 @@ type Character struct {
 }
 
 // --- Création du personnage ---
+
 func InitCharacter() Character {
+	css.Clear()
 	var c Character
 	var choiceNumber int
 	var confirm string
 	confirmed := false
-
-	fmt.Print("Entrez votre prénom : ")
+	// Nom du personnage
+	text1 := "Entrez votre prénom : "
+	fmt.Print("\n")
+	for _, char := range text1 {
+		fmt.Printf(css.Bold+"%c"+css.Reset, char)
+		time.Sleep(50 * time.Millisecond)
+	}
+	time.Sleep(1 * time.Second)
 	_, err := fmt.Scan(&c.Name)
 	if err != nil {
 		fmt.Println("Erreur :", err)
 	}
-
-	fmt.Print("Choisissez le sexe (Homme/Femme/Autre) : ")
+	css.Clear()
+	time.Sleep(1 * time.Second)
+	// Sexe du personnage
+	text2 := "Choisissez le sexe (Homme/Femme/Autre) : "
+	for _, char := range text2 {
+		fmt.Printf(css.Bold+"%c"+css.Reset, char)
+		time.Sleep(50 * time.Millisecond)
+	}
 	fmt.Scan(&c.Gender)
-
-	fmt.Printf("Voici le nom de votre personnage : %s (%s)\n", c.Name, c.Gender)
-
+	time.Sleep(1 * time.Second)
+	text3 := fmt.Sprintf("Voici le nom de votre personnage : %s (%s)\n", c.Name, c.Gender)
+	fmt.Printf("\n")
+	for _, char := range text3 {
+		fmt.Printf(css.Bold+"%c"+css.Reset, char)
+		time.Sleep(30 * time.Millisecond)
+	}
+	time.Sleep(1 * time.Second)
+	css.Clear()
+	// Choix de la classe
 	for !confirmed {
-		fmt.Println("\nQuelle Classe voulez-vous ?")
+		text4 := "\nQuelle Classe voulez-vous ?"
+		for _, char := range text4 {
+			fmt.Printf(css.Bold+"%c"+css.Reset, char)
+			time.Sleep(30 * time.Millisecond)
+		}
+		time.Sleep(1 * time.Second)
+		fmt.Print("\n")
 		fmt.Println("1: Paladin ⚔️")
 		fmt.Println("2: Géant 🪓")
 		fmt.Println("3: Mage 🔮")
@@ -96,10 +125,17 @@ func InitCharacter() Character {
 		}
 
 		stats := class.Classes[className]
-		fmt.Printf("\n%s → %s\n", className, stats.Description)
+
+		fmt.Printf("\n%s → ", className)
+		for _, char := range stats.Description {
+			fmt.Printf(css.Bold+"%c"+css.Reset, char)
+			time.Sleep(20 * time.Millisecond)
+		}
+		fmt.Print("\n")
+		time.Sleep(1 * time.Second)
 		fmt.Printf("PV: %d | ATK: %d | DEF: %d | Mana: %d | SPD: %d | CRIT: %d%% | Arme: %s\n",
 			stats.HP, stats.Atk, stats.Def, stats.Mana, stats.Spd, stats.Crit, stats.Weapon)
-
+		time.Sleep(1 * time.Second)
 		fmt.Print("Confirmez-vous votre choix ? (Oui/Non) : ")
 		fmt.Scan(&confirm)
 
@@ -443,10 +479,11 @@ func (c Character) DisplayFull() {
 }
 
 func (c Character) DisplayStatsBar() {
-	fmt.Println("\n=== Statistiques ===")
-	fmt.Printf("Nom: %s | Classe: %s | Niveau: %d | XP: %d/%d\n",
-		c.Name, c.Class, c.Level, c.Exp, c.ExpNext)
-	fmt.Printf("HP: %d/%d | Mana: %d/%d | ATK: %d | DEF: %d | SPD: %d | CRIT: %d%%\n",
+
+	fmt.Println(css.Beige + "\n=== Statistiques ===" + css.Reset)
+	fmt.Printf(css.LightGreen+"Nom: %s"+css.Reset+" | "+css.Gray+"Classe: %s "+" | "+css.Gold+"Niveau: %d"+css.Reset+" | "+css.LightBlue+" XP: %d/%d\n"+css.Reset+css.Yellow+"Gold: %d\n"+css.Reset,
+		c.Name, c.Class, c.Level, c.Exp, c.ExpNext, c.Wallet.Amount)
+	fmt.Printf(css.Red+"HP: %d/%d"+css.Reset+" | "+css.Violet+"Mana: %d/%d"+css.Reset+" | "+css.Orange+"ATK: %d"+css.Reset+" | "+css.SteelBlue+"DEF: %d"+css.Reset+" | "+css.Green+"SPD: %d"+css.Reset+" | "+css.Yellow+"CRIT: %d%%\n"+css.Reset,
 		c.HP, c.MaxHP, c.Mana, c.MaxMana, c.Atk, c.Def, c.Spd, c.Crit)
 }
 
@@ -493,9 +530,9 @@ func LoadFromSave(state save.GameState) Character {
 		Name:      state.Name,
 		Class:     state.Class,
 		Gender:    "Inconnu",
-		Level:     1,
-		Exp:       0,
-		ExpNext:   10,
+		Level:     state.Level,
+		Exp:       state.Exp,
+		ExpNext:   state.ExpNext,
 		Wallet:    money.Money{Amount: state.Money, Currency: "Gold"},
 		Inventory: map[string]int{},
 		Equip:     equipment.EquipmentSet{},

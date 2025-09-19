@@ -8,6 +8,9 @@ import (
 	"github.com/Alexanger300/projet-red_Forge/source/monster"
 )
 
+var red = "\033[31m"
+var reset = "\033[0m"
+
 // Fonction principale de combat
 func StartFight(player *character.Character, enemy *monster.Monster) bool {
 	fmt.Printf("\n⚔️ Un %s apparaît ! (%d/%d HP)\n", enemy.Name, enemy.HP, enemy.HPMax)
@@ -17,7 +20,7 @@ func StartFight(player *character.Character, enemy *monster.Monster) bool {
 		// Tour du joueur
 		escaped := playerTurn(player, enemy)
 		if escaped {
-			fmt.Println("Vous avez réussi à fuir le combat ! Cependant, vous avez perdu 10 d'or en fuyant.")
+			fmt.Println("Vous avez réussi à fuir le combat !" + red + " Cependant, vous avez perdu 10 d'or en fuyant." + reset)
 			return false
 		}
 
@@ -31,7 +34,7 @@ func StartFight(player *character.Character, enemy *monster.Monster) bool {
 			break
 		}
 
-		// --- Tour du monstre ---
+		// Tour du monstre
 		monsterTurn(player, enemy)
 		if !player.IsAlive() {
 			break
@@ -45,7 +48,7 @@ func StartFight(player *character.Character, enemy *monster.Monster) bool {
 	if player.IsAlive() {
 		fmt.Printf("\n🏆 Victoire ! Vous avez vaincu %s !\n", enemy.Name)
 
-		// 🔹 Ajout du loot du monstre (si défini)
+		//  Ajout du loot du monstre (si défini)
 		if enemy.Loot != "" {
 			player.AddItem(enemy.Loot, 1) // 1 exemplaire du loot
 			fmt.Printf("📦 Vous récupérez : %s\n", enemy.Loot)

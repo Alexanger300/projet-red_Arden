@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/Alexanger300/projet-red_Forge/asset/css"
 )
 
 // Structure sérialisable pour l'équipement
@@ -23,6 +25,9 @@ type GameState struct {
 	Progress  string         `json:"progress"`  // Étape actuelle
 	Inventory map[string]int `json:"inventory"` // Inventaire (objet → quantité)
 	Equip     EquipmentState `json:"equip"`     // Équipement (struct claire)
+	Level     int            `json:"level"`     // Niveau
+	Exp       int            `json:"exp"`
+	ExpNext   int            `json:"exp_next"` // Exp pour passer au lvl suivant
 }
 
 // Sauvegarder la partie
@@ -58,7 +63,7 @@ func LoadGame(slotID int) (GameState, error) {
 	if err != nil {
 		return GameState{}, fmt.Errorf("❌ Erreur lors du chargement du slot %d", slotID)
 	}
-
+	css.Clear()
 	fmt.Printf("✅ Sauvegarde du slot %d chargée avec succès.\n", slotID)
 	return state, nil
 }
