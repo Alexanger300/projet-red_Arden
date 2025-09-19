@@ -94,6 +94,7 @@ func InitCharacter() Character {
 	time.Sleep(1 * time.Second)
 	css.Clear()
 	// Choix de la classe
+
 	for !confirmed {
 		text4 := "\nQuelle Classe voulez-vous ?"
 		for _, char := range text4 {

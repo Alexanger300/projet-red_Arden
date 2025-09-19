@@ -99,7 +99,7 @@ func Start(player *character.Character) {
 
 // exploreZone lance un combat dans une zone donnée
 func exploreZone(player *character.Character, enemy *monster.Monster, zoneName string) {
-	fmt.Printf("\n⚔️ Vous entrez dans la zone et rencontrez un %s !\n", enemy.Name)
+	fmt.Printf("\n⚔️ Vous entrez dans la zone et rencontrez un %s !\n", css.Red+enemy.Name+css.Reset)
 
 	// Combat tour par tour
 	victory := fight.StartFight(player, enemy)
