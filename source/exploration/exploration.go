@@ -2,7 +2,9 @@ package exploration
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/Alexanger300/projet-red_Forge/asset/css"
 	"github.com/Alexanger300/projet-red_Forge/source/character"
 	"github.com/Alexanger300/projet-red_Forge/source/fight"
 	"github.com/Alexanger300/projet-red_Forge/source/monster"
@@ -23,14 +25,57 @@ var zoneLoots = map[string][]string{
 	},
 }
 
+var alreadyUsed = false
+
 func Start(player *character.Character) {
+	css.Clear()
+	text1 := `Les terres d'Arden ne sont plus qu'un champ de ruines.`
+	text2 := `Trois routes mènent aux vestiges de l’ancien royaume`
+	text3 := ` : les forêts sombres, `
+	text4 := `les montagnes glacées,`
+	text5 := `et les ruines maudites.`
+	text6 := `Chaque pas est un pari contre la mort.`
+	if !alreadyUsed {
+		for _, c := range text1 {
+			fmt.Print(string(c))
+			time.Sleep(50 * time.Millisecond)
+		}
+		time.Sleep(1 * time.Second)
+		for _, c := range text2 {
+			fmt.Print(css.Bold + css.Red + string(c) + css.Reset)
+			time.Sleep(50 * time.Millisecond)
+		}
+		time.Sleep(1 * time.Second)
+		for _, c := range text3 {
+			fmt.Print(css.Green + string(c) + css.Reset)
+			time.Sleep(50 * time.Millisecond)
+		}
+		time.Sleep(200 * time.Millisecond)
+		for _, c := range text4 {
+			fmt.Print(css.Blue + string(c) + css.Reset)
+			time.Sleep(50 * time.Millisecond)
+		}
+		time.Sleep(200 * time.Millisecond)
+		for _, c := range text5 {
+			fmt.Print(css.Gray + string(c) + css.Reset)
+			time.Sleep(50 * time.Millisecond)
+		}
+		fmt.Print("\n")
+		time.Sleep(1 * time.Second)
+		for _, c := range text6 {
+			fmt.Print(css.Bold + css.Red + string(c) + css.Reset)
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
+	alreadyUsed = true
+	time.Sleep(1 * time.Second)
 	for {
 		player.DisplayStatsBar()
 
 		fmt.Println("\n=== 🌌 Exploration des terres d'Arden ===")
-		fmt.Println("1. Forêt sombre")
-		fmt.Println("2. Montagnes glacées")
-		fmt.Println("3. Ruines maudites")
+		fmt.Println(css.Green + "1. Forêt sombre" + css.Reset)
+		fmt.Println(css.Blue + "2. Montagnes glacées" + css.Reset)
+		fmt.Println(css.Gray + "3. Ruines maudites" + css.Reset)
 		fmt.Println("0. Retour")
 
 		var choix int
@@ -69,10 +114,10 @@ func exploreZone(player *character.Character, enemy *monster.Monster, zoneName s
 		player.Wallet.Add(enemy.GoldReward)
 		fmt.Printf("💰 Vous gagnez %d or. Total : %d\n", enemy.GoldReward, player.Wallet.Amount)
 
-		// ⚠️ Pas besoin de redonner le loot du monstre ici,
-		// fight.StartFight s'en occupe déjà !
+		// Pas besoin de redonner le loot du monstre ici,
+		// fight.StartFight s'en occupe déjà
 
-		// 🔹 Fouille de la zone
+		// Fouille de la zone
 		var choix string
 		fmt.Printf("\nVoulez-vous fouiller la zone %s pour trouver des ressources ? (oui/non) : ", zoneName)
 		fmt.Scan(&choix)

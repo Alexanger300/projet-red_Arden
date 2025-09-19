@@ -2,12 +2,14 @@ package blacksmith
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/Alexanger300/projet-red_Forge/asset/css"
 	"github.com/Alexanger300/projet-red_Forge/source/character"
 	"github.com/Alexanger300/projet-red_Forge/source/equipment"
 )
 
-// --- Helpers ---
+// Assure que la map des armes est initialisée.
 
 func ensureWeaponsMap(player *character.Character) {
 	if player.Weapons == nil {
@@ -44,11 +46,22 @@ func equipWeapon(player *character.Character, w equipment.Equipment) {
 	player.RecalculateStatsFromEquipment()
 }
 
-// --- UI principale ---
+// Menu Principal du forgeron
 
 func Welcome(player *character.Character) {
-	fmt.Println("=== ⚒️ Bienvenue chez le forgeron ===")
-	fmt.Println("Je peux forger de l'équipement pour vous ou améliorer ce que vous possédez.")
+	css.Clear()
+	text := "=== " + "⚒️ " + " Bienvenue chez le forgeron ==="
+	for _, char := range text {
+		fmt.Printf("%c", char)
+		time.Sleep(30 * time.Millisecond)
+	}
+	time.Sleep(500 * time.Millisecond)
+	text1 := "\nJe peux forger de l'équipement pour vous ou améliorer ce que vous possédez."
+	for _, char := range text1 {
+		fmt.Printf("%c", char)
+		time.Sleep(30 * time.Millisecond)
+	}
+	time.Sleep(1 * time.Second)
 
 	for {
 		fmt.Println("\nQue souhaitez-vous faire ?")
@@ -67,6 +80,7 @@ func Welcome(player *character.Character) {
 			improveEquipment(player)
 		case 3:
 			fmt.Println("Au revoir !")
+			css.Clear()
 			return
 		default:
 			fmt.Println("❌ Choix invalide, essayez encore.")
@@ -74,7 +88,7 @@ func Welcome(player *character.Character) {
 	}
 }
 
-// --- Forge ---
+// 	Forger l'équipement selon la classe
 
 func forgeEquipment(player *character.Character) {
 	fmt.Println("\n--- 🔨 Forge ---")
@@ -84,7 +98,7 @@ func forgeEquipment(player *character.Character) {
 
 	switch player.Class {
 
-	// ===================== PALADIN =====================
+	// Pour Paladin
 	case "Paladin":
 		fmt.Println("1. Épée sacrée ⚔️ →",
 			displayRequirement(player, "Peau de gobelin", 2)+",",
@@ -108,11 +122,12 @@ func forgeEquipment(player *character.Character) {
 
 		switch choice {
 		case 1:
-			if player.Wallet.Spend(10) &&
+			if player.Wallet.Amount >= 10 &&
 				hasItem(player, "Peau de gobelin", 2) &&
 				hasItem(player, "Lingot de fer", 1) {
 				removeItem(player, "Peau de gobelin", 2)
 				removeItem(player, "Lingot de fer", 1)
+				player.Wallet.Spend(10)
 				weapon := equipment.Equipment{Name: "Épée sacrée", Atk: 5, Slot: "Weapon", Class: "Paladin"}
 				equipWeapon(player, weapon)
 				fmt.Println("✅ Vous avez forgé une Épée sacrée (+5 ATK) !")
@@ -120,11 +135,12 @@ func forgeEquipment(player *character.Character) {
 				fmt.Println("❌ Pas assez d'or ou de ressources.")
 			}
 		case 2:
-			if player.Wallet.Spend(8) &&
+			if player.Wallet.Amount >= 8 &&
 				hasItem(player, "Lingot de fer", 2) &&
 				hasItem(player, "Branche d'arbre", 1) {
 				removeItem(player, "Lingot de fer", 2)
 				removeItem(player, "Branche d'arbre", 1)
+				player.Wallet.Spend(8)
 				player.Equip.Head = equipment.Equipment{Name: "Casque de paladin", Def: 5, Slot: "Head", Class: "Paladin"}
 				player.RecalculateStatsFromEquipment()
 				fmt.Println("✅ Vous avez forgé un Casque de paladin (+5 DEF) !")
@@ -132,11 +148,12 @@ func forgeEquipment(player *character.Character) {
 				fmt.Println("❌ Pas assez d'or ou de ressources.")
 			}
 		case 3:
-			if player.Wallet.Spend(15) &&
+			if player.Wallet.Amount >= 15 &&
 				hasItem(player, "Lingot de fer", 3) &&
 				hasItem(player, "Cristal de vie", 1) {
 				removeItem(player, "Lingot de fer", 3)
 				removeItem(player, "Cristal de vie", 1)
+				player.Wallet.Spend(15)
 				player.Equip.Body = equipment.Equipment{Name: "Armure bénie", Def: 8, HP: 20, Slot: "Body", Class: "Paladin"}
 				player.RecalculateStatsFromEquipment()
 				fmt.Println("✅ Vous avez forgé une Armure bénie (+8 DEF, +20 HP) !")
@@ -144,11 +161,12 @@ func forgeEquipment(player *character.Character) {
 				fmt.Println("❌ Pas assez d'or ou de ressources.")
 			}
 		case 4:
-			if player.Wallet.Spend(12) &&
+			if player.Wallet.Amount >= 12 &&
 				hasItem(player, "Lingot de fer", 2) &&
 				hasItem(player, "Pierre de vie", 1) {
 				removeItem(player, "Lingot de fer", 2)
 				removeItem(player, "Pierre de vie", 1)
+				player.Wallet.Spend(12)
 				player.Equip.Legs = equipment.Equipment{Name: "Jambières lourdes", Def: 6, Spd: -1, Slot: "Legs", Class: "Paladin"}
 				player.RecalculateStatsFromEquipment()
 				fmt.Println("✅ Vous avez forgé des Jambières lourdes (+6 DEF, -1 SPD) !")
@@ -157,7 +175,7 @@ func forgeEquipment(player *character.Character) {
 			}
 		}
 
-	// ===================== GÉANT =====================
+	// Pour Géant
 	case "Géant":
 		fmt.Println("1. Gantelets colossaux 🪓 →",
 			displayRequirement(player, "Cuir de sanglier", 2)+",",
@@ -181,11 +199,12 @@ func forgeEquipment(player *character.Character) {
 
 		switch choice {
 		case 1:
-			if player.Wallet.Spend(10) &&
+			if player.Wallet.Amount >= 10 &&
 				hasItem(player, "Cuir de sanglier", 2) &&
 				hasItem(player, "Fourrure de loup", 1) {
 				removeItem(player, "Cuir de sanglier", 2)
 				removeItem(player, "Fourrure de loup", 1)
+				player.Wallet.Spend(10)
 				weapon := equipment.Equipment{Name: "Gantelets colossaux", Atk: 7, Slot: "Weapon", Class: "Géant"}
 				equipWeapon(player, weapon)
 				fmt.Println("✅ Vous avez forgé des Gantelets colossaux (+7 ATK) !")
@@ -193,11 +212,12 @@ func forgeEquipment(player *character.Character) {
 				fmt.Println("❌ Pas assez d'or ou de ressources.")
 			}
 		case 2:
-			if player.Wallet.Spend(8) &&
+			if player.Wallet.Amount >= 8 &&
 				hasItem(player, "Lingot de fer", 2) &&
 				hasItem(player, "Cuir de sanglier", 1) {
 				removeItem(player, "Lingot de fer", 2)
 				removeItem(player, "Cuir de sanglier", 1)
+				player.Wallet.Spend(8)
 				player.Equip.Head = equipment.Equipment{Name: "Heaume massif", Def: 6, Slot: "Head", Class: "Géant"}
 				player.RecalculateStatsFromEquipment()
 				fmt.Println("✅ Vous avez forgé un Heaume massif (+6 DEF) !")
@@ -205,11 +225,12 @@ func forgeEquipment(player *character.Character) {
 				fmt.Println("❌ Pas assez d'or ou de ressources.")
 			}
 		case 3:
-			if player.Wallet.Spend(15) &&
+			if player.Wallet.Amount >= 15 &&
 				hasItem(player, "Lingot de fer", 3) &&
 				hasItem(player, "Pierre de vie", 1) {
 				removeItem(player, "Lingot de fer", 3)
 				removeItem(player, "Pierre de vie", 1)
+				player.Wallet.Spend(15)
 				player.Equip.Body = equipment.Equipment{Name: "Plastron de colosse", Def: 10, HP: 25, Slot: "Body", Class: "Géant"}
 				player.RecalculateStatsFromEquipment()
 				fmt.Println("✅ Vous avez forgé un Plastron de colosse (+10 DEF, +25 HP) !")
@@ -217,11 +238,12 @@ func forgeEquipment(player *character.Character) {
 				fmt.Println("❌ Pas assez d'or ou de ressources.")
 			}
 		case 4:
-			if player.Wallet.Spend(12) &&
+			if player.Wallet.Amount >= 12 &&
 				hasItem(player, "Lingot de fer", 2) &&
 				hasItem(player, "Fourrure de loup", 1) {
 				removeItem(player, "Lingot de fer", 2)
 				removeItem(player, "Fourrure de loup", 1)
+				player.Wallet.Spend(12)
 				player.Equip.Legs = equipment.Equipment{Name: "Jambières de pierre", Def: 7, Spd: -2, Slot: "Legs", Class: "Géant"}
 				player.RecalculateStatsFromEquipment()
 				fmt.Println("✅ Vous avez forgé des Jambières de pierre (+7 DEF, -2 SPD) !")
@@ -230,7 +252,7 @@ func forgeEquipment(player *character.Character) {
 			}
 		}
 
-	// ===================== MAGE =====================
+	// Pour Mage
 	case "Mage":
 		fmt.Println("1. Grimoire ancien 📖 →",
 			displayRequirement(player, "Parchemin ancien", 1)+",",
@@ -254,11 +276,12 @@ func forgeEquipment(player *character.Character) {
 
 		switch choice {
 		case 1:
-			if player.Wallet.Spend(10) &&
+			if player.Wallet.Amount >= 10 &&
 				hasItem(player, "Parchemin ancien", 1) &&
 				hasItem(player, "Cristal magique", 2) {
 				removeItem(player, "Parchemin ancien", 1)
 				removeItem(player, "Cristal magique", 2)
+				player.Wallet.Spend(10)
 				weapon := equipment.Equipment{Name: "Grimoire ancien", Atk: 4, Mana: 15, Slot: "Weapon", Class: "Mage"}
 				equipWeapon(player, weapon)
 				fmt.Println("✅ Vous avez forgé un Grimoire ancien (+4 ATK, +15 Mana) !")
@@ -266,11 +289,12 @@ func forgeEquipment(player *character.Character) {
 				fmt.Println("❌ Pas assez d'or ou de ressources.")
 			}
 		case 2:
-			if player.Wallet.Spend(8) &&
+			if player.Wallet.Amount >= 8 &&
 				hasItem(player, "Cristal magique", 1) &&
 				hasItem(player, "Branche d'arbre", 2) {
 				removeItem(player, "Cristal magique", 1)
 				removeItem(player, "Branche d'arbre", 2)
+				player.Wallet.Spend(8)
 				player.Equip.Head = equipment.Equipment{Name: "Chapeau mystique", Def: 3, Mana: 10, Slot: "Head", Class: "Mage"}
 				player.RecalculateStatsFromEquipment()
 				fmt.Println("✅ Vous avez forgé un Chapeau mystique (+3 DEF, +10 Mana) !")
@@ -278,11 +302,12 @@ func forgeEquipment(player *character.Character) {
 				fmt.Println("❌ Pas assez d'or ou de ressources.")
 			}
 		case 3:
-			if player.Wallet.Spend(15) &&
+			if player.Wallet.Amount >= 15 &&
 				hasItem(player, "Cristal magique", 2) &&
 				hasItem(player, "Pierre de vie", 1) {
 				removeItem(player, "Cristal magique", 2)
 				removeItem(player, "Pierre de vie", 1)
+				player.Wallet.Spend(15)
 				player.Equip.Body = equipment.Equipment{Name: "Robe enchantée", Def: 4, Mana: 15, Slot: "Body", Class: "Mage"}
 				player.RecalculateStatsFromEquipment()
 				fmt.Println("✅ Vous avez forgé une Robe enchantée (+4 DEF, +15 Mana) !")
@@ -290,11 +315,12 @@ func forgeEquipment(player *character.Character) {
 				fmt.Println("❌ Pas assez d'or ou de ressources.")
 			}
 		case 4:
-			if player.Wallet.Spend(12) &&
+			if player.Wallet.Amount >= 12 &&
 				hasItem(player, "Cristal magique", 1) &&
 				hasItem(player, "Peau de gobelin", 2) {
 				removeItem(player, "Cristal magique", 1)
 				removeItem(player, "Peau de gobelin", 2)
+				player.Wallet.Spend(12)
 				player.Equip.Legs = equipment.Equipment{Name: "Bottes de lévitation", Spd: 3, Mana: 5, Slot: "Legs", Class: "Mage"}
 				player.RecalculateStatsFromEquipment()
 				fmt.Println("✅ Vous avez forgé des Bottes de lévitation (+3 SPD, +5 Mana) !")
@@ -303,7 +329,7 @@ func forgeEquipment(player *character.Character) {
 			}
 		}
 
-	// ===================== GUÉRISSEUR =====================
+	// Pour Guérisseur
 	case "Guérisseur":
 		fmt.Println("1. Bâton de vie 🌿 →",
 			displayRequirement(player, "Branche d'arbre", 3)+",",
@@ -380,7 +406,7 @@ func forgeEquipment(player *character.Character) {
 	}
 }
 
-// --- Améliorations ---
+// Améliorer l'équipement existant
 
 func improveEquipment(player *character.Character) {
 	fmt.Println("\n--- 🔧 Amélioration d'Équipement ---")
@@ -399,7 +425,7 @@ func improveEquipment(player *character.Character) {
 			return
 		}
 
-		fmt.Println("\nQuelle pièce voulez-vous améliorer ? (15 or chacune)")
+		fmt.Println("\nQuelle pièce voulez-vous améliorer ?")
 		i := 1
 		choices := make(map[int]*equipment.Equipment)
 
@@ -444,7 +470,7 @@ func improveEquipment(player *character.Character) {
 		}
 		if player.Wallet.Spend(25) {
 			player.Equip.Weapon.Atk += 5
-			// Miroir dans l'inventaire d'armes
+			// Met à jour l'arme dans l'inventaire
 			ensureWeaponsMap(player)
 			player.Weapons[player.Equip.Weapon.Name] = player.Equip.Weapon
 			player.RecalculateStatsFromEquipment()

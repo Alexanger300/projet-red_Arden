@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Alexanger300/projet-red_Forge/asset/css"
 	"github.com/Alexanger300/projet-red_Forge/source/character"
 	"github.com/Alexanger300/projet-red_Forge/source/inn"
 	"github.com/Alexanger300/projet-red_Forge/source/introduction"
@@ -25,7 +26,7 @@ func pickSlot(prompt string) int {
 
 func DisplayMenu() {
 	for {
-		fmt.Println("=== 🌌 Les Chroniques d'Arden ===")
+		fmt.Println(css.Bold + css.Underline + "=== 🌌 Les Chroniques d'Arden ===" + css.Reset)
 		fmt.Println("1 - Nouvelle Partie")
 		fmt.Println("2 - Charger une Partie")
 		fmt.Println("3 - Qui sont-ils")
@@ -37,7 +38,7 @@ func DisplayMenu() {
 
 		switch choice {
 		case 1:
-			// Nouvelle partie → demander le slot
+			// Nouvelle partie --> demander le slot
 			slot := pickSlot("Choisissez un slot (1-3) pour la nouvelle partie : ")
 
 			// Si le slot existe déjà, demander confirmation d’écraser
@@ -53,13 +54,6 @@ func DisplayMenu() {
 
 			// Création du personnage (intro inchangée)
 			introduction.Introduction() // ta fonction actuelle crée le perso et lance l’auberge
-			// (Si tu préfères créer ici, tu peux remplacer par :
-			//   player := character.InitCharacter()
-			//   inn.Inn(&player)
-			// et faire une 1ère sauvegarde immédiate si tu veux.)
-			// NB : si tu veux que l’auberge connaisse le slot à la sauvegarde,
-			// tu peux lui redemander le slot lors du "Sauvegarder et quitter".
-			// (voir plus bas suggestion pour Inn)
 
 		case 2:
 			// Charger une partie → demander le slot

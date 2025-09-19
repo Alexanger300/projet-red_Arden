@@ -2,14 +2,14 @@ package monster
 
 import "fmt"
 
-// === Statut appliqué à un monstre (poison, brûlure, etc.) ===
+// Statut appliqué au monstre
 type Status struct {
 	Name     string // ex: "Poison"
 	Duration int    // nb de tours restants
 	Damage   int    // dégâts par tour (si applicable)
 }
 
-// === Structure d’un monstre ===
+// Structure d’un monstre
 type Monster struct {
 	Name       string
 	HPMax      int
@@ -73,7 +73,7 @@ func (m *Monster) UpdateStatuses() {
 	m.Statuses = remaining
 }
 
-// === Création des monstres (constructeurs) ===
+// Création de différents types de monstres
 
 // Gobelin — rapide, peu défendu
 func NewGoblin() *Monster {

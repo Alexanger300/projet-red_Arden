@@ -2,7 +2,7 @@ package equipment
 
 import "fmt"
 
-// === Définition d’un équipement ===
+// Structure d’un équipement
 type Equipment struct {
 	Name  string
 	HP    int
@@ -15,7 +15,7 @@ type Equipment struct {
 	Class string // Classe qui peut l’équiper
 }
 
-// === Ensemble équipé par un personnage ===
+// Personnage équipé
 type EquipmentSet struct {
 	Weapon Equipment
 	Head   Equipment
@@ -23,7 +23,7 @@ type EquipmentSet struct {
 	Legs   Equipment
 }
 
-// Calcul des bonus totaux (⚠️ sans l’arme !)
+// Calcul des bonus totaux ( sans l’arme )
 func (set EquipmentSet) TotalStats() (hp, mana, atk, def, spd, crit int) {
 	items := []Equipment{set.Head, set.Body, set.Legs}
 	for _, item := range items {
@@ -62,7 +62,7 @@ func (set EquipmentSet) Display() {
 	}
 }
 
-// === Pool d’équipements disponibles par classe ===
+// Ensemble des équipements disponibles par classe
 var EquipmentPools = map[string][]Equipment{
 	"Paladin": {
 		{Name: "Épée sacrée", Atk: 15, Crit: 5, Slot: "Weapon", Class: "Paladin"},
@@ -90,7 +90,7 @@ var EquipmentPools = map[string][]Equipment{
 	},
 }
 
-// === Équiper un objet ===
+// Equiper un objet
 func (set *EquipmentSet) Equip(item Equipment, class string) {
 	if item.Class != class {
 		fmt.Printf("❌ %s ne peut pas être équipé par un %s.\n", item.Name, class)

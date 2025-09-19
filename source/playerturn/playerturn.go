@@ -51,12 +51,12 @@ func playerTurn(player *character.Character, enemy *monster.Monster) {
 
 		if idx == 0 {
 			fmt.Println("↩️ Retour au menu principal.")
-			playerTurn(player, enemy) // 🔁 relance le menu principal sans perdre le tour
+			playerTurn(player, enemy) //  relance le menu principal sans perdre le tour
 			return
 		}
 		if idx < 1 || idx > len(player.Skills) {
 			fmt.Println("❌ Choix invalide.")
-			playerTurn(player, enemy) // 🔁 relance le menu principal sans perdre le tour
+			playerTurn(player, enemy) // relance le menu principal sans perdre le tour
 			return
 		}
 
@@ -84,12 +84,12 @@ func playerTurn(player *character.Character, enemy *monster.Monster) {
 
 		if idx == 0 {
 			fmt.Println("↩️ Retour au menu principal.")
-			playerTurn(player, enemy) // 🔁 relance le menu principal sans perdre le tour
+			playerTurn(player, enemy) //  relance le menu principal sans perdre le tour
 			return
 		}
 		if idx < 1 || idx > len(items) {
 			fmt.Println("❌ Choix invalide.")
-			playerTurn(player, enemy) // 🔁 relance le menu principal sans perdre le tour
+			playerTurn(player, enemy) // relance le menu principal sans perdre le tour
 			return
 		}
 
@@ -97,7 +97,7 @@ func playerTurn(player *character.Character, enemy *monster.Monster) {
 
 	default:
 		fmt.Println("❌ Choix invalide.")
-		playerTurn(player, enemy) // 🔁 relance le menu principal sans perdre le tour
+		playerTurn(player, enemy) // relance le menu principal sans perdre le tour
 		return
 	}
 
