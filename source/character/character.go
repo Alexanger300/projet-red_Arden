@@ -274,6 +274,18 @@ func (c *Character) UseItem(item string, target *Character) {
 		} else {
 			fmt.Println("❌ Aucune potion de soin disponible.")
 		}
+	case "Élixir de mana":
+		if c.RemoveItem(item, 1) {
+			manaRestore := 30
+			target.Mana += manaRestore
+			if target.Mana > target.MaxMana {
+				target.Mana = target.MaxMana
+			}
+			fmt.Printf("💧 %s utilise un élixir de mana → %s récupère %d PM (Mana: %d/%d)\n",
+				c.Name, target.Name, manaRestore, target.Mana, target.MaxMana)
+		} else {
+			fmt.Println("❌ Aucun élixir de mana disponible.")
+		}
 	}
 }
 

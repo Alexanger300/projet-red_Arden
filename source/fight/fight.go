@@ -164,7 +164,10 @@ func playerTurn(player *character.Character, enemy *monster.Monster) bool {
 				// Vérifie l’objet choisi
 				chosen := items[idx-1]
 				if chosen == "Potion de soin" {
-					player.UseItem("Potion de soin", player) // soigne le joueur
+					player.UseItem("Potion de soin", player)
+				}
+				if chosen == "Élixir de mana" {
+					player.UseItem("Élixir de mana", player)
 				} else {
 					player.UseItemOnMonster(chosen, enemy) // ex: potion de poison
 				}
